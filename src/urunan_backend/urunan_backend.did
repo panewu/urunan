@@ -1,3 +1,4 @@
 service : {
-    "greet": (text) -> (text) query;
+  get_cycles_balance : () -> (nat64) query;
+  greet : (text) -> (text) query;
 }
