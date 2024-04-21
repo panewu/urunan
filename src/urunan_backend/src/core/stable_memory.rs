@@ -17,7 +17,7 @@ thread_local! {
     );
 
     /// Expenses.ID stable serial ID
-    static NEXT_EXPENSE_ID: RefCell<StableCell<ID, Memory>> = RefCell::new(
+    pub static NEXT_EXPENSE_ID: RefCell<StableCell<ID, Memory>> = RefCell::new(
         StableCell::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(1))),
             1
@@ -25,14 +25,14 @@ thread_local! {
     );
 
     /// All Expenses
-    static EXPENSES: RefCell<StableBTreeMap<ID, Expenses, Memory>> = RefCell::new(
+    pub static EXPENSES: RefCell<StableBTreeMap<ID, Expenses, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(2))),
         )
     );
 
     /// SplitDebts.ID stable serial ID
-    static NEXT_SPLIT_ID: RefCell<StableCell<ID, Memory>> = RefCell::new(
+    pub static NEXT_SPLIT_ID: RefCell<StableCell<ID, Memory>> = RefCell::new(
         StableCell::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(3))),
             1
@@ -40,21 +40,21 @@ thread_local! {
     );
 
     /// All Split Debts aggregate
-    static SPLIT_DEBTS: RefCell<StableBTreeMap<ID, SplitDebts, Memory>> = RefCell::new(
+    pub static SPLIT_DEBTS: RefCell<StableBTreeMap<ID, SplitDebts, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(4))),
         )
     );
 
     /// All User Profiles
-    static PROFILES: RefCell<StableBTreeMap<UserID, User, Memory>> = RefCell::new(
+    pub static PROFILES: RefCell<StableBTreeMap<UserID, User, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(5)))
         )
     );
 
     /// All User by Principal
-    static USERS: RefCell<StableBTreeMap<Principal, UserID, Memory>> = RefCell::new(
+    pub static USERS: RefCell<StableBTreeMap<Principal, UserID, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(6)))
         )

@@ -1,4 +1,5 @@
-use crate::split_bill::types::{ExpenseDetails, Expenses};
+use crate::core::types::ID;
+use crate::split_bill::types::{Categories, ExpenseDetails, Expenses};
 use ic_cdk::{export_candid, query};
 
 mod core;

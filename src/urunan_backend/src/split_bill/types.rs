@@ -23,6 +23,7 @@ pub struct User {
 #[derive(Debug, CandidType, Deserialize, Serialize, Default, Clone)]
 pub struct Categories {
     pub name: String,
+    pub icon: String,
 }
 
 /// Expense Entity that hold the split member
@@ -30,6 +31,7 @@ pub struct Categories {
 pub struct Expenses {
     pub detail: ExpenseDetails,
     pub owner: UserID,
+    pub category_id: ID,
 }
 
 /// Expense Detail is the representation of expense in detail
@@ -40,7 +42,6 @@ pub struct ExpenseDetails {
     pub currency: String,
     pub timestamp: u64,
     pub tag: Vec<String>,
-    pub category: Categories,
     pub split_mode: SplitBillMode,
 }
 

@@ -1,11 +1,10 @@
-type Categories = record { name : text };
+type Categories = record { icon : text; name : text };
 type ExpenseDetails = record {
   tag : vec text;
   title : text;
   split_mode : SplitBillMode;
   currency : text;
   timestamp : nat64;
-  category : Categories;
   amount : float64;
 };
 type SplitBillMode = variant { Portion; Evenly; PerPurchase };
@@ -13,5 +12,5 @@ service : {
   check_username : (text) -> (bool) query;
   get_cycles_balance : () -> (nat64) query;
   greet : (text) -> (text) query;
-  new_expense : (ExpenseDetails) -> (nat);
+  new_expense : (ExpenseDetails, Categories) -> (nat);
 }
