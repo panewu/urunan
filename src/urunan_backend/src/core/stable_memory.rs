@@ -5,9 +5,9 @@ use ic_stable_structures::{
 };
 use std::cell::RefCell;
 
-use crate::split_bill::types::{ExpenseDetails, Expenses, SplitDebts, User};
+use crate::main_module::types::{ExpenseDetails, Expenses, SplitDebts};
 
-use super::types::{UserID, ID};
+use super::types::{User, UserID, ID};
 
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 

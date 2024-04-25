@@ -1,13 +1,10 @@
-use crate::core::types::ID;
-use crate::split_bill::types::{Categories, ExpenseDetails, Expenses};
-use ic_cdk::{export_candid, query};
+use crate::core::runtime::Metrics;
+use crate::core::types::{User, UserID, ID};
+use crate::main_module::types::{Categories, ExpenseDetails, Expenses};
+use ic_cdk::export_candid;
 
 mod core;
-mod split_bill;
-
-#[query]
-fn greet(name: String) -> String {
-    format!("Hello, {}!", name)
-}
+mod http;
+mod main_module;
 
 export_candid!();

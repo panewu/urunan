@@ -7,10 +7,23 @@ type ExpenseDetails = record {
   timestamp : nat64;
   amount : float64;
 };
+type Metrics = record { total_errors : nat64; total_api_requests : nat64 };
 type SplitBillMode = variant { Portion; Evenly; PerPurchase };
+type User = record {
+  username : text;
+  created_at : nat64;
+  full_name : text;
+  avatar : text;
+};
 service : {
-  check_username : (text) -> (bool) query;
+  find_user : (text) -> (User) query;
   get_cycles_balance : () -> (nat64) query;
-  greet : (text) -> (text) query;
+  get_metrics : () -> (Metrics) query;
+  get_my_profile : () -> (User) query;
+  is_my_user_exist : () -> (bool) query;
+  is_username_available : (text) -> (bool) query;
   new_expense : (ExpenseDetails, Categories) -> (nat);
+  new_user : (text, text, text) -> ();
+  put_user_avatar : (text) -> ();
+  put_user_full_name : (text) -> ();
 }
