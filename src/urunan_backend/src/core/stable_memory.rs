@@ -53,7 +53,7 @@ thread_local! {
         )
     );
 
-    /// All User by Principal
+    /// Relation of User by Principal
     pub static USERS: RefCell<StableBTreeMap<Principal, UserID, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(6)))

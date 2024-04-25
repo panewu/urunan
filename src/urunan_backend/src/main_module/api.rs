@@ -4,7 +4,7 @@ use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
-    types::{Categories, ExpenseDetails, Expenses},
+    types::{ExpenseDetails, Expenses, SplitDebts},
 };
 
 // User --------------------------------------------------
@@ -12,7 +12,7 @@ use super::{
 #[query]
 fn is_my_user_exist() -> bool {
     let session = caller();
-    service::is_user_exist(session)
+    service::get_username_by_principal(session).is_some()
 }
 
 #[query]
@@ -60,8 +60,32 @@ async fn put_user_full_name(fullname: String) {
 // Expense--------------------------------------------------------------
 
 #[update]
-async fn new_expense(expense: ExpenseDetails) -> ID {
+async fn new_expense(expense: ExpenseDetails, debtors: Vec<SplitDebts>) -> ID {
     let session = caller();
-    // check
-    service::new_expense(session, expense)
+
+    if expense.title.is_empty() {
+        trap("title should not be empty");
+    }
+    if expense.currency.is_empty() {
+        trap("currency should not be empty");
+    }
+    if expense.amount <= 0.0 {
+        trap("amount should be greater than zero")
+    }
+
+    if debtors.is_empty() {
+        trap("there is no one to split the bill with")
+    } else if debtors.len() == 1 {
+        if let Some(my_username) = service::get_username_by_principal(session) {
+            if debtors[0].username == my_username {
+                trap("cannot split bill with given user")
+            } else if debtors[0].amount <= 0.0 {
+                trap("amount should be greater than zero")
+            }
+        }
+    } else if debtors.iter().any(|debtor| debtor.amount <= 0.0) {
+        trap("amount should be greater than zero")
+    }
+
+    service::new_expense(session, expense, debtors)
 }

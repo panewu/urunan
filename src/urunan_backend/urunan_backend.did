@@ -9,6 +9,11 @@ type ExpenseDetails = record {
 };
 type Metrics = record { total_errors : nat64; total_api_requests : nat64 };
 type SplitBillMode = variant { Portion; Evenly; PerPurchase };
+type SplitDebts = record {
+  username : text;
+  expense_id : nat;
+  amount : float64;
+};
 type User = record {
   username : text;
   created_at : nat64;
@@ -22,7 +27,7 @@ service : {
   get_my_profile : () -> (User) query;
   is_my_user_exist : () -> (bool) query;
   is_username_available : (text) -> (bool) query;
-  new_expense : (ExpenseDetails) -> (nat);
+  new_expense : (ExpenseDetails, vec SplitDebts) -> (nat);
   new_user : (text, text, text) -> ();
   put_user_avatar : (text) -> ();
   put_user_full_name : (text) -> ();

@@ -1,3 +1,5 @@
+use std::borrow::BorrowMut;
+
 use candid::Principal;
 use ic_cdk::{caller, trap};
 
@@ -7,14 +9,14 @@ use crate::core::{
     utils,
 };
 
-use super::types::{Categories, ExpenseDetails, Expenses};
+use super::types::{Categories, ExpenseDetails, Expenses, SplitDebts};
 
 pub fn get_user_profile(username: UserID) -> Option<User> {
     PROFILES.with(|o| o.borrow().get(&username))
 }
 
-pub fn is_user_exist(principal: Principal) -> bool {
-    USERS.with_borrow(|o| o.contains_key(&principal))
+pub fn get_username_by_principal(principal: Principal) -> Option<UserID> {
+    USERS.with_borrow(|o| o.get(&principal))
 }
 
 pub fn get_user_by_principal(principal: Principal) -> Option<User> {
@@ -68,16 +70,22 @@ pub fn update_user(principal: Principal, full_name: Option<String>, avatar: Opti
     });
 }
 
-pub fn new_expense(principal: Principal, expense: ExpenseDetails) -> ID {
+pub fn new_expense(
+    principal: Principal,
+    mut expense_detail: ExpenseDetails,
+    debtors: Vec<SplitDebts>,
+) -> ID {
     let id = NEXT_EXPENSE_ID.with_borrow(|o| *o.get());
 
     let username = USERS
         .with_borrow(|o| o.get(&principal))
         .unwrap_or_else(|| trap("user not found"));
 
+    expense_detail.timestamp = utils::timestamp_millis();
+
     let new_expense = Expenses {
         owner: username,
-        detail: expense,
+        detail: expense_detail,
     };
 
     EXPENSES.with_borrow_mut(|o| o.insert(id, new_expense));

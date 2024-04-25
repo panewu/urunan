@@ -27,6 +27,11 @@ pub struct Expenses {
     pub owner: UserID,
 }
 
+#[derive(Debug, CandidType, Default, Deserialize)]
+pub struct ExpenseIDs {
+    pub ids: Vec<ID>,
+}
+
 /// Expense Detail is the representation of expense in detail
 #[derive(Debug, CandidType, Deserialize, Default, Clone)]
 pub struct ExpenseDetails {
@@ -42,7 +47,7 @@ pub struct ExpenseDetails {
 #[derive(Debug, CandidType, Deserialize, Clone)]
 pub struct SplitDebts {
     pub expense_id: ID,
-    pub user_id: UserID,
+    pub username: UserID,
     pub amount: f64,
 }
 
