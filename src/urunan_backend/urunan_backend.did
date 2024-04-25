@@ -1,8 +1,8 @@
-type Categories = record { icon : text; name : text };
 type ExpenseDetails = record {
   tag : vec text;
   title : text;
   split_mode : SplitBillMode;
+  description : text;
   currency : text;
   timestamp : nat64;
   amount : float64;
@@ -22,7 +22,7 @@ service : {
   get_my_profile : () -> (User) query;
   is_my_user_exist : () -> (bool) query;
   is_username_available : (text) -> (bool) query;
-  new_expense : (ExpenseDetails, Categories) -> (nat);
+  new_expense : (ExpenseDetails) -> (nat);
   new_user : (text, text, text) -> ();
   put_user_avatar : (text) -> ();
   put_user_full_name : (text) -> ();

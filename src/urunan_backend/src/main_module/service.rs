@@ -2,12 +2,12 @@ use candid::Principal;
 use ic_cdk::{caller, trap};
 
 use crate::core::{
-    stable_memory::{NEXT_EXPENSE_ID, PROFILES, USERS},
+    stable_memory::{EXPENSES, NEXT_EXPENSE_ID, PROFILES, USERS},
     types::{User, UserID, ID},
     utils,
 };
 
-use super::types::{Categories, ExpenseDetails};
+use super::types::{Categories, ExpenseDetails, Expenses};
 
 pub fn get_user_profile(username: UserID) -> Option<User> {
     PROFILES.with(|o| o.borrow().get(&username))
@@ -68,8 +68,19 @@ pub fn update_user(principal: Principal, full_name: Option<String>, avatar: Opti
     });
 }
 
-pub fn new_expense(expense: ExpenseDetails, category: Categories) -> ID {
+pub fn new_expense(principal: Principal, expense: ExpenseDetails) -> ID {
     let id = NEXT_EXPENSE_ID.with_borrow(|o| *o.get());
+
+    let username = USERS
+        .with_borrow(|o| o.get(&principal))
+        .unwrap_or_else(|| trap("user not found"));
+
+    let new_expense = Expenses {
+        owner: username,
+        detail: expense,
+    };
+
+    EXPENSES.with_borrow_mut(|o| o.insert(id, new_expense));
 
     NEXT_EXPENSE_ID.with_borrow_mut(|next_id| {
         next_id

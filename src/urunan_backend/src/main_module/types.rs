@@ -25,13 +25,13 @@ pub struct Categories {
 pub struct Expenses {
     pub detail: ExpenseDetails,
     pub owner: UserID,
-    pub category_id: Option<ID>,
 }
 
 /// Expense Detail is the representation of expense in detail
 #[derive(Debug, CandidType, Deserialize, Default, Clone)]
 pub struct ExpenseDetails {
     pub title: String,
+    pub description: String,
     pub amount: f64,
     pub currency: String,
     pub timestamp: u64,

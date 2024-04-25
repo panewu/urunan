@@ -1,9 +1,6 @@
 use ic_cdk::{caller, query, trap, update};
 
-use crate::core::{
-    stable_memory::PROFILES,
-    types::{User, UserID, ID},
-};
+use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
@@ -63,8 +60,8 @@ async fn put_user_full_name(fullname: String) {
 // Expense--------------------------------------------------------------
 
 #[update]
-async fn new_expense(expense: ExpenseDetails, category: Categories) -> ID {
+async fn new_expense(expense: ExpenseDetails) -> ID {
     let session = caller();
     // check
-    service::new_expense(expense, category)
+    service::new_expense(session, expense)
 }
