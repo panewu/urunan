@@ -4,7 +4,7 @@ use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
-    types::{ExpenseDetails, Expenses, SplitDebts},
+    types::{ExpenseDetail, SplitBillDebtor, SplitBillExpense},
 };
 
 // User --------------------------------------------------
@@ -60,7 +60,7 @@ async fn put_user_full_name(fullname: String) {
 // Expense--------------------------------------------------------------
 
 #[update]
-async fn new_expense(expense: ExpenseDetails, debtors: Vec<SplitDebts>) -> ID {
+async fn new_expense(expense: ExpenseDetail, debtors: Vec<SplitBillDebtor>) -> ID {
     let session = caller();
 
     if expense.title.is_empty() {

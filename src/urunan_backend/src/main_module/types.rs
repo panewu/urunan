@@ -22,8 +22,8 @@ pub struct Categories {
 
 /// Expense Entity that hold the split member
 #[derive(Debug, CandidType, Deserialize, Clone)]
-pub struct Expenses {
-    pub detail: ExpenseDetails,
+pub struct SplitBillExpense {
+    pub detail: ExpenseDetail,
     pub owner: UserID,
 }
 
@@ -34,7 +34,7 @@ pub struct ExpenseIDs {
 
 /// Expense Detail is the representation of expense in detail
 #[derive(Debug, CandidType, Deserialize, Default, Clone)]
-pub struct ExpenseDetails {
+pub struct ExpenseDetail {
     pub title: String,
     pub description: String,
     pub amount: f64,
@@ -45,14 +45,14 @@ pub struct ExpenseDetails {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone)]
-pub struct SplitDebts {
+pub struct SplitBillDebtor {
     pub expense_id: ID,
     pub username: UserID,
     pub amount: f64,
 }
 
 // Structs need to impl Storable to be used in Stable Memory
-impl Storable for Expenses {
+impl Storable for SplitBillExpense {
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
         Cow::Owned(Encode!(self).unwrap())
     }
@@ -64,7 +64,7 @@ impl Storable for Expenses {
 }
 
 // Structs need to impl Storable to be used in Stable Memory
-impl Storable for SplitDebts {
+impl Storable for SplitBillDebtor {
     fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
         Cow::Owned(Encode!(self).unwrap())
     }

@@ -5,7 +5,7 @@ use ic_stable_structures::{
 };
 use std::cell::RefCell;
 
-use crate::main_module::types::{ExpenseDetails, Expenses, SplitDebts};
+use crate::main_module::types::{ExpenseDetail, SplitBillDebtor, SplitBillExpense};
 
 use super::types::{User, UserID, ID};
 
@@ -25,7 +25,7 @@ thread_local! {
     );
 
     /// All Expenses
-    pub static EXPENSES: RefCell<StableBTreeMap<ID, Expenses, Memory>> = RefCell::new(
+    pub static EXPENSES: RefCell<StableBTreeMap<ID, SplitBillExpense, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(2))),
         )
@@ -40,7 +40,7 @@ thread_local! {
     );
 
     /// All Split Debts aggregate
-    pub static SPLIT_DEBTS: RefCell<StableBTreeMap<ID, SplitDebts, Memory>> = RefCell::new(
+    pub static SPLIT_DEBTS: RefCell<StableBTreeMap<ID, SplitBillDebtor, Memory>> = RefCell::new(
         StableBTreeMap::init(
             MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(4))),
         )

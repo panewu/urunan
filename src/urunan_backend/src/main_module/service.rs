@@ -1,15 +1,13 @@
-use std::borrow::BorrowMut;
-
 use candid::Principal;
 use ic_cdk::{caller, trap};
 
 use crate::core::{
-    stable_memory::{EXPENSES, NEXT_EXPENSE_ID, PROFILES, USERS},
+    stable_memory::{EXPENSES, NEXT_EXPENSE_ID, NEXT_SPLIT_ID, PROFILES, SPLIT_DEBTS, USERS},
     types::{User, UserID, ID},
     utils,
 };
 
-use super::types::{Categories, ExpenseDetails, Expenses, SplitDebts};
+use super::types::{Categories, ExpenseDetail, SplitBillDebtor, SplitBillExpense};
 
 pub fn get_user_profile(username: UserID) -> Option<User> {
     PROFILES.with(|o| o.borrow().get(&username))
@@ -72,18 +70,32 @@ pub fn update_user(principal: Principal, full_name: Option<String>, avatar: Opti
 
 pub fn new_expense(
     principal: Principal,
-    mut expense_detail: ExpenseDetails,
-    debtors: Vec<SplitDebts>,
+    mut expense_detail: ExpenseDetail,
+    mut debtors: Vec<SplitBillDebtor>,
 ) -> ID {
     let id = NEXT_EXPENSE_ID.with_borrow(|o| *o.get());
+    let debt_id = NEXT_SPLIT_ID.with_borrow(|o| *o.get());
 
     let username = USERS
         .with_borrow(|o| o.get(&principal))
         .unwrap_or_else(|| trap("user not found"));
 
     expense_detail.timestamp = utils::timestamp_millis();
+    debtors.iter_mut().for_each(|d| d.expense_id = id);
 
-    let new_expense = Expenses {
+    SPLIT_DEBTS.with_borrow_mut(|o| {
+        let mut sum: f64 = 0.0;
+        debtors.iter_mut().for_each(|debtor| {
+            debtor.expense_id = id;
+            o.insert(debt_id, debtor.clone());
+            sum += debtor.amount;
+        });
+        if expense_detail.amount != sum {
+            expense_detail.amount = sum;
+        }
+    });
+
+    let new_expense = SplitBillExpense {
         owner: username,
         detail: expense_detail,
     };
@@ -94,6 +106,11 @@ pub fn new_expense(
         next_id
             .set(*next_id.get() + 1)
             .unwrap_or_else(|_| trap("Failed to set NEXT_EXPENSE_ID"))
+    });
+    NEXT_SPLIT_ID.with_borrow_mut(|next_id| {
+        next_id
+            .set(*next_id.get() + 1)
+            .unwrap_or_else(|_| trap("Failed to set NEXT_SPLIT_ID"))
     });
     id
 }
