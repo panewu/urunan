@@ -1,4 +1,4 @@
-use std::borrow::BorrowMut;
+use std::borrow::{Borrow, BorrowMut};
 
 use candid::Principal;
 use ic_cdk::trap;
@@ -72,6 +72,17 @@ pub fn update_user(principal: Principal, full_name: Option<String>, avatar: Opti
                 user.avatar = new_avatar;
             }
         }
+    });
+}
+
+pub fn delete_user(principal: Principal) {
+    USERS.with_borrow_mut(|o| {
+        if let Some(username) = o.get(&principal) {
+            PROFILES.with_borrow_mut(|p| p.remove(&username));
+            // let mut user_rel = USER_RELS.with_borrow_mut(|ur| ur.get(&username)).unwrap();
+            // let owned_expense = &mut user_rel.owned_expenses;
+        }
+        o.remove(&principal);
     });
 }
 

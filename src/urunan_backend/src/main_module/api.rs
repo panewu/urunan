@@ -4,7 +4,7 @@ use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
-    types::{ExpenseDetail, SplitBillDebtor, SplitBillExpense},
+    types::{ExpenseDetail, SplitBillDebtor},
 };
 
 // User --------------------------------------------------
