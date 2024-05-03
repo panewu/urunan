@@ -30,7 +30,7 @@ service : {
   is_my_user_exist : () -> (bool) query;
   is_username_available : (text) -> (bool) query;
   new_expense : (ExpenseDetail, vec SplitBillDebtor) -> (nat);
-  new_user : (text, text, text) -> ();
+  new_user : (User) -> ();
   put_user_avatar : (text) -> ();
   put_user_full_name : (text) -> ();
 }

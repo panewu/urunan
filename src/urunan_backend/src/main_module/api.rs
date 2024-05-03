@@ -24,9 +24,9 @@ fn is_username_available(user_id: UserID) -> bool {
 }
 
 #[update]
-async fn new_user(user_id: UserID, full_name: String, avatar: String) {
+async fn new_user(user: User) {
     let session = caller();
-    service::new_user(user_id, session, full_name, avatar)
+    service::new_user(user.username, session, user.full_name, user.avatar)
 }
 
 #[query]
