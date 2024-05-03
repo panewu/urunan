@@ -5,7 +5,9 @@ use ic_stable_structures::{
 };
 use std::cell::RefCell;
 
-use crate::main_module::types::{ExpenseDetail, SplitBillDebtor, SplitBillExpense};
+use crate::main_module::types::{
+    ExpenseDetail, ExpenseRelIDs, SplitBillDebtor, SplitBillExpense, UserRelIDs,
+};
 
 use super::types::{User, UserID, ID};
 
@@ -60,5 +62,18 @@ thread_local! {
         )
     );
 
+    /// One to Many Relation of User
+    pub static USER_RELS: RefCell<StableBTreeMap<UserID, UserRelIDs, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(7)))
+        )
+    );
+
+    /// One to Many Relation of Expense
+    pub static EXPENSE_RELS: RefCell<StableBTreeMap<ID, ExpenseRelIDs, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(8)))
+        )
+    )
 
 }

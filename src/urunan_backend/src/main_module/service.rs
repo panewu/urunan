@@ -1,13 +1,20 @@
+use std::borrow::BorrowMut;
+
 use candid::Principal;
-use ic_cdk::{caller, trap};
+use ic_cdk::trap;
 
 use crate::core::{
-    stable_memory::{EXPENSES, NEXT_EXPENSE_ID, NEXT_SPLIT_ID, PROFILES, SPLIT_DEBTS, USERS},
+    stable_memory::{
+        EXPENSES, EXPENSE_RELS, NEXT_EXPENSE_ID, NEXT_SPLIT_ID, PROFILES, SPLIT_DEBTS, USERS,
+        USER_RELS,
+    },
     types::{User, UserID, ID},
     utils,
 };
 
-use super::types::{Categories, ExpenseDetail, SplitBillDebtor, SplitBillExpense};
+use super::types::{
+    ExpenseDetail, ExpenseRelIDs, SplitBillDebtor, SplitBillExpense, SplitBillStatus, UserRelIDs,
+};
 
 pub fn get_user_profile(username: UserID) -> Option<User> {
     PROFILES.with(|o| o.borrow().get(&username))
@@ -68,27 +75,124 @@ pub fn update_user(principal: Principal, full_name: Option<String>, avatar: Opti
     });
 }
 
+fn increment_next_split_bill_debtor_id() {
+    NEXT_SPLIT_ID.with_borrow_mut(|next_id| {
+        next_id
+            .set(*next_id.get() + 1)
+            .unwrap_or_else(|_| trap("Failed to set NEXT_SPLIT_ID"))
+    });
+}
+
+impl UserRelIDs {
+    fn set_user_connection(&mut self, user_id: &UserID) {
+        let exist = match &self
+            .user_connections
+            .iter()
+            .find(|&rel_id| rel_id == user_id)
+        {
+            None => false,
+            Some(_) => true,
+        };
+
+        if !exist {
+            let connections = &mut self.user_connections;
+            connections.push(user_id.to_owned());
+        }
+    }
+
+    fn set_user_owned_expense(&mut self, expense_id: &ID) {
+        let exist = match &self
+            .owned_expenses
+            .iter()
+            .find(|&rel_id| rel_id == expense_id)
+        {
+            None => false,
+            Some(_) => true,
+        };
+
+        if !exist {
+            let expenses = &mut self.owned_expenses;
+            expenses.push(*expense_id);
+        }
+    }
+
+    fn set_user_owed_bill(&mut self, split_bill_id: &ID) {
+        let exist = match &self
+            .owed_bills
+            .iter()
+            .find(|&rel_id| rel_id == split_bill_id)
+        {
+            None => false,
+            Some(_) => true,
+        };
+        if !exist {
+            let owed_bills = &mut self.owed_bills;
+            owed_bills.push(*split_bill_id);
+        }
+    }
+}
+
+impl ExpenseRelIDs {
+    fn set_expense_debtor(&mut self, split_bill_id: &ID) {
+        let exist = match &self.debtors.iter().find(|&rel_id| rel_id == split_bill_id) {
+            None => false,
+            Some(_) => true,
+        };
+        if !exist {
+            let debtors = &mut self.debtors;
+            debtors.push(*split_bill_id);
+        }
+    }
+}
+
 pub fn new_expense(
     principal: Principal,
     mut expense_detail: ExpenseDetail,
     mut debtors: Vec<SplitBillDebtor>,
 ) -> ID {
+    // get generate id
     let id = NEXT_EXPENSE_ID.with_borrow(|o| *o.get());
-    let debt_id = NEXT_SPLIT_ID.with_borrow(|o| *o.get());
 
+    // get user_id
     let username = USERS
         .with_borrow(|o| o.get(&principal))
         .unwrap_or_else(|| trap("user not found"));
 
+    // put timestamp detail
     expense_detail.timestamp = utils::timestamp_millis();
-    debtors.iter_mut().for_each(|d| d.expense_id = id);
 
+    // get or default user relation & expense relation
+    let mut user_rel = USER_RELS.with_borrow(|o| match o.get(&username) {
+        None => UserRelIDs::default(),
+        Some(obj) => obj,
+    });
+    let mut expense_rel = ExpenseRelIDs::default();
+
+    // set owned expense relation
+    user_rel.set_user_owned_expense(&id);
+    // iterate debtor to fill the information gap & store them
     SPLIT_DEBTS.with_borrow_mut(|o| {
         let mut sum: f64 = 0.0;
         debtors.iter_mut().for_each(|debtor| {
+            // get generated id
+            let debt_id = NEXT_SPLIT_ID.with_borrow(|o| *o.get());
+            // insert to bTree
             debtor.expense_id = id;
             o.insert(debt_id, debtor.clone());
+            // calculate sum amount
             sum += debtor.amount;
+            // set expense relation with debtor
+            expense_rel.debtors.push(debt_id);
+            // set user connection if not self userID
+            if username != debtor.username {
+                user_rel.set_user_connection(&debtor.username);
+            }
+            // set owed bill relation
+            user_rel.set_user_owed_bill(&debt_id);
+            // set expense debtor relation
+            expense_rel.set_expense_debtor(&debt_id);
+            // increment id for debtor
+            increment_next_split_bill_debtor_id();
         });
         if expense_detail.amount != sum {
             expense_detail.amount = sum;
@@ -98,19 +202,16 @@ pub fn new_expense(
     let new_expense = SplitBillExpense {
         owner: username,
         detail: expense_detail,
+        status: SplitBillStatus::Active,
     };
 
     EXPENSES.with_borrow_mut(|o| o.insert(id, new_expense));
+    EXPENSE_RELS.with_borrow_mut(|o| {});
 
     NEXT_EXPENSE_ID.with_borrow_mut(|next_id| {
         next_id
             .set(*next_id.get() + 1)
             .unwrap_or_else(|_| trap("Failed to set NEXT_EXPENSE_ID"))
-    });
-    NEXT_SPLIT_ID.with_borrow_mut(|next_id| {
-        next_id
-            .set(*next_id.get() + 1)
-            .unwrap_or_else(|_| trap("Failed to set NEXT_SPLIT_ID"))
     });
     id
 }
