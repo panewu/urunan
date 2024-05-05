@@ -13,13 +13,19 @@ export function PrivateRoute({ children }: RouteProps) {
     useEffect(() => {
         setIsLoading(true);
         isAuthenticatedPromise()
-            .then(state => setIsAuthenticated(state))
+            .then(state => {
+                setIsAuthenticated(state && !!user);
+            })
             .catch(console.error)
             .finally(() => setIsLoading(false));
     }, [isAuthenticatedPromise, setIsAuthenticated]);
 
     if (!isAuthenticated) {
         return <Navigate to='/login' state={{ from: location }} replace />
+    }
+
+    if (isLoading) {
+        <div>LOADING...</div>
     }
 
     return children;
