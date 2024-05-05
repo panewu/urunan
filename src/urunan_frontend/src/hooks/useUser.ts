@@ -1,28 +1,29 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { useLocalStorage } from "./useLocalStorage";
+import { User } from "@declarations/urunan_backend/urunan_backend.did";
 
 export const K_SELF_USERNAME = 'self_username';
 
 export const appStateUser = () => {
-    const [username, setUsername] = useState<string | null>(null);
-    return { username, setUsername };
+    const [user, setUser] = useState<User | null>(null);
+    return { user, setUser };
 };
 
 export const useUser = () => {
 
     const { setItem } = useLocalStorage();
-    const { username, setUsername } = useContext(AppContext);
+    const { user, setUser } = useContext(AppContext);
 
-    const setSelf = (username: string) => {
-        setUsername(username);
-        setItem(K_SELF_USERNAME, username);
+    const setSelf = (user: User) => {
+        setUser(user);
+        setItem(K_SELF_USERNAME, JSON.stringify(user));
     };
 
     const removeSelf = () => {
-        setUsername(null);
+        setUser(null);
         setItem(K_SELF_USERNAME, '');
     };
 
-    return { username, setSelf, removeSelf }
+    return { user, setSelf, removeSelf }
 };

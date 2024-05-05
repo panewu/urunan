@@ -1,16 +1,17 @@
 import { urunan_backend } from "@declarations/urunan_backend";
+import { User } from "@declarations/urunan_backend/urunan_backend.did";
 import { createContext } from "react";
 
 interface AppContext {
-    username: string | null;
-    setUsername: (username: string | null) => void;
+    user: User | null;
+    setUser: (user: User | null) => void;
     actor: typeof urunan_backend;
     setActor: (actor: typeof urunan_backend) => void;
 }
 
 export const AppContext = createContext<AppContext>({
-    username: null,
-    setUsername: () => { },
+    user: null,
+    setUser: () => { },
     actor: urunan_backend,
     setActor: () => { },
 });

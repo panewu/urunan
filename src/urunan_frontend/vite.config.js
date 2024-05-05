@@ -37,7 +37,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@declarations': resolve(__dirname, '../declarations')
+      '@declarations': resolve(__dirname, '../declarations'),
+      'src': resolve(__dirname, 'src'),
     },
   },
 });

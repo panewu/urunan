@@ -20,29 +20,49 @@ export const useAuth = () => {
 
     const { getItem } = useLocalStorage();
     const { setActor } = useActor();
-    const { username, setSelf, removeSelf } = useUser();
+    const { user, setSelf, removeSelf } = useUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         getAUthClient().then(_ => {
-            const username = getItem(K_SELF_USERNAME);
-            if (username) {
-                setSelf(username);
+            const user = getItem(K_SELF_USERNAME);
+            if (user) {
+                setSelf(JSON.parse(user));
             }
         }).catch(console.error);
     }, [getItem, setSelf]);
 
+    /**
+     * @returns registerRequired
+     */
     const login = async () => {
         setIsLoading(true);
         try {
             const authClient = await getAUthClient();
-            await authClient.login({
-                identityProvider: process.env.DFX_NETWORK === 'local' ?
-                    `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943` : undefined
+            await new Promise((resolve) => {
+                authClient.login({
+                    identityProvider: process.env.DFX_NETWORK === 'local' ?
+                        `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943` : undefined,
+                    onSuccess: resolve
+                })
             });
             const identity = authClient.getIdentity();
             const agent = new HttpAgent({ identity });
-            setActor(createActor(process.env.CANISTER_ID_URUNAN_BACKEND ?? '', { agent }));
+            const actor = createActor(process.env.CANISTER_ID_URUNAN_BACKEND ?? '', { agent });
+            setActor(actor);
+
+            // set profile if registered, check if my profile is registered or not
+            const userRegistered = await actor.get_my_profile();
+            let registerRequired = userRegistered.length === 0;
+            if (userRegistered.length > 0) {
+                const user = userRegistered[0] || null;
+                if (user) {
+                    setSelf(user);
+                } else {
+                    registerRequired = true;
+                }
+            }
+            return registerRequired;
         } catch (err) {
             console.error(err);
             throw err;
@@ -65,5 +85,10 @@ export const useAuth = () => {
         }
     };
 
-    return { isLoading, login, logout, username }
+    const isAuthenticated = async () => {
+        const authClient = await getAUthClient();
+        return authClient.isAuthenticated();
+    };
+
+    return { isLoading, login, logout, user, isAuthenticated }
 };

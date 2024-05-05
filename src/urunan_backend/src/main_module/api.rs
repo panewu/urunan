@@ -30,11 +30,8 @@ async fn new_user(user: User) {
 }
 
 #[query]
-fn get_my_profile() -> User {
-    match service::get_user_by_principal(caller()) {
-        Some(user) => user,
-        None => trap("user not found. need to register"),
-    }
+fn get_my_profile() -> Option<User> {
+    service::get_user_by_principal(caller())
 }
 
 #[query]

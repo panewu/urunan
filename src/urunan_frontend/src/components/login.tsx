@@ -1,27 +1,78 @@
-import { useState } from "react";
+import { redirect, useActionData, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect, useState } from "react";
 
 export function Login() {
-    const { login, isLoading } = useAuth();
-    const [error, setError] = useState('');
 
-    const handleSubmit = (e: any) => {
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const from = params.get("from") || "/";
+    const navigate = useNavigate();
+
+    const { login, isLoading, user, isAuthenticated } = useAuth();
+    const [showRegistration, setShowRegistration] = useState(false);
+
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
-        login();
+
     };
 
+    const onLoginClicked = async (e: any) => {
+        e.preventDefault();
+
+        try {
+            const shouldRegister = await login();
+            setShowRegistration(shouldRegister);
+            if (!shouldRegister) {
+                navigate(from);
+            }
+        } catch (err) { }
+    }
+
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-900">
-            <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg shadow-lg">
-                <h2 className="text-2xl font-semibold text-center text-gray-200 mb-6">Login</h2>
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-gray-100 rounded-lg py-2 font-semibold hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500"
-                >
-                    Login
-                </button>
-            </form>
+        <div className="flex justify-center items-center h-screen bg-gray-400">
+            <div className="w-3/12 p-12 border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
+                <div className="flex flex-col justify-center items-center mb-32">
+                    <h1 className="text-lime-800 text-5xl font-black bg-lime-500 border-black border-2 p-2.5">URUNAN</h1>
+                    <p className="text-lime-800 font-semibold">by panewu</p>
+                </div>
+                <div className="flex flex-col">
+                    {
+                        !showRegistration ?
+                            <button
+                                onClick={onLoginClicked}
+                                disabled={isLoading}
+                                className="h-12 border-black border-2 p-2.5 bg-lime-500 hover:bg-lime-600 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-lime-700"
+                            >
+                                LOGIN
+                            </button>
+                            :
+                            <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
+                                <input
+                                    name="username"
+                                    className=
+                                    "border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                                    placeholder="username"
+                                />
+                                <input
+                                    name="fullname"
+                                    className=
+                                    "border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                                    placeholder="Full Name"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="h-12 border-black border-2 p-2.5 bg-lime-500 hover:bg-lime-600 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-lime-700"
+                                >
+                                    REGISTER
+                                </button>
+                            </form>
+                    }
+                </div>
+
+            </div>
         </div>
+
     );
 }
