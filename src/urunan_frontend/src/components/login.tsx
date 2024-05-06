@@ -1,5 +1,5 @@
 import { redirect, useActionData, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { AuthenticationStatus, useAuth } from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useActor } from "src/hooks/useActor";
 
@@ -10,18 +10,31 @@ export function Login() {
     const from = params.get("from") || "/";
     const navigate = useNavigate();
 
-    const { login, isLoading, user, isAuthenticated, logout } = useAuth();
+    const { login, logout, authenticatedCheck } = useAuth();
     const { actor } = useActor();
     const [showRegistration, setShowRegistration] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    // hack for https://github.com/remix-run/react-router/issues/11240
+    const [shouldNavigateBack, setShouldNavigateBack] = useState(false);
 
     useEffect(() => {
-        isAuthenticated().then((authenticated) => {
-            setShowRegistration(!user && authenticated);
-            if (!!user && authenticated) {
-                navigate(from);
-            }
-        });
-    }, [user, isAuthenticated]);
+        setIsLoading(true);
+        authenticatedCheck()
+            .then((status) => {
+                setShowRegistration(status === AuthenticationStatus.RegistrationRequired);
+                if (status === AuthenticationStatus.Ready) {
+                    navigate(from);
+                }
+            }).catch(console.error)
+            .finally(() => setIsLoading(false));
+    }, []);
+
+    useEffect(() => {
+        if (shouldNavigateBack) {
+            setShouldNavigateBack(false);
+            navigate(from, { replace: true });
+        }
+    }, [shouldNavigateBack]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -35,6 +48,7 @@ export function Login() {
                 created_at: BigInt(0),
                 avatar: '',
             });
+            setShouldNavigateBack(true);
         } else {
             console.error('username unavailable');
         }
@@ -43,10 +57,11 @@ export function Login() {
     const onLoginClicked = async (e: any) => {
         e.preventDefault();
         try {
-            const shouldRegister = await login();
+            const status = await login();
+            const shouldRegister = status === AuthenticationStatus.RegistrationRequired;
             setShowRegistration(shouldRegister);
             if (!shouldRegister) {
-                navigate(from);
+                setShouldNavigateBack(true);
             }
         } catch (err) { }
     };

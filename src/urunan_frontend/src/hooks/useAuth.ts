@@ -1,11 +1,9 @@
-import { HttpAgent } from '@dfinity/agent';
-import { useContext, useEffect, useState } from "react"
-import { K_SELF_USERNAME, appStateUser, useUser } from "./useUser";
+import { K_SELF_USER, useUser } from "./useUser";
 import { AuthClient } from "@dfinity/auth-client";
-import { AppContext } from "src/context";
 import { useLocalStorage } from "./useLocalStorage";
-import { createActor } from '@declarations/urunan_backend';
+import { createActor, urunan_backend } from '@declarations/urunan_backend';
 import { useActor } from './useActor';
+import { jsonParse } from 'src/utils';
 
 let authClient: AuthClient | null = null;
 
@@ -16,63 +14,104 @@ const getAUthClient = async () => {
     return authClient;
 };
 
+export enum AuthenticationStatus {
+    None = "None",
+    LoginRequired = "LoginRequired",
+    RegistrationRequired = "RegistrationRequired",
+    Ready = "Ready",
+}
+
 export const useAuth = () => {
 
     const { getItem } = useLocalStorage();
     const { setActor } = useActor();
     const { user, setSelf, removeSelf } = useUser();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    useEffect(() => {
-        getAUthClient().then(_ => {
-            const user = getItem(K_SELF_USERNAME);
-            if (user) {
-                setSelf(JSON.parse(user));
-            }
-        }).catch(console.error);
-    }, [getItem, setSelf]);
+    const validateStoredUser = () => {
+        if (!!user) {
+            return;
+        }
+        const userStored = getItem(K_SELF_USER);
+        if (userStored) {
+            setSelf(jsonParse(userStored));
+        }
+    };
 
     /**
-     * @returns registerRequired
+     * After internet identity connected, check if user profile already registered in the backend
+     * @returns AuthenticationStatus
+     */
+    const validateAuthStatus = async (actor: typeof urunan_backend) => {
+        const userRegistered = await actor.get_my_profile();
+        // console.log(userRegistered);
+        let authStatus: AuthenticationStatus = AuthenticationStatus.LoginRequired;
+        if (userRegistered.length > 0) {
+            const user = userRegistered[0] || null;
+            if (user) {
+                setSelf(user);
+                authStatus = AuthenticationStatus.Ready;
+            } else {
+                removeSelf();
+                authStatus = AuthenticationStatus.RegistrationRequired;
+            }
+        } else {
+            removeSelf();
+            authStatus = AuthenticationStatus.RegistrationRequired;
+        }
+        return authStatus;
+    };
+
+    const authenticatedCheck = async () => {
+        // rehydrate user
+        validateStoredUser();
+        // check if identity connected
+        const authClient = await getAUthClient();
+        const isAuth = await authClient.isAuthenticated();
+        if (!isAuth) {
+            return AuthenticationStatus.LoginRequired;
+        }
+        // get identity & set actor (again on each browser refresh)
+        const identity = authClient.getIdentity();
+        const newActor = createActor(process.env.CANISTER_ID_URUNAN_BACKEND ?? '', { agentOptions: { identity } });
+        setActor(newActor);
+        // actor using authenticated identity is open for connection, check if registration required
+        const status = await validateAuthStatus(newActor);
+
+        return status;
+    };
+
+
+    /**
+     * @returns AuthenticationStatus after login flow is executed
      */
     const login = async () => {
-        setIsLoading(true);
         try {
-            const authClient = await getAUthClient();
-            await new Promise((resolve) => {
-                authClient.login({
-                    identityProvider: process.env.DFX_NETWORK === 'local' ?
-                        `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943` : undefined,
-                    onSuccess: resolve
-                })
-            });
-            const identity = authClient.getIdentity();
-            const agent = new HttpAgent({ identity });
-            const actor = createActor(process.env.CANISTER_ID_URUNAN_BACKEND ?? '', { agent });
-            setActor(actor);
+            const authStatus = await authenticatedCheck();
 
-            // set profile if registered, check if my profile is registered or not
-            const userRegistered = await actor.get_my_profile();
-            let registerRequired = userRegistered.length === 0;
-            if (userRegistered.length > 0) {
-                const user = userRegistered[0] || null;
-                if (user) {
-                    setSelf(user);
-                } else {
-                    registerRequired = true;
-                }
+            if (authStatus === AuthenticationStatus.LoginRequired) {
+                const authClient = await getAUthClient();
+                await new Promise((resolve) => {
+                    authClient.login({
+                        identityProvider: process.env.DFX_NETWORK === 'local' ?
+                            `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943` : undefined,
+                        onSuccess: resolve
+                    })
+                });
+                const identity = authClient.getIdentity();
+                const actor = createActor(process.env.CANISTER_ID_URUNAN_BACKEND ?? '', { agentOptions: { identity } });
+                setActor(actor);
+                // actor using authenticated identity is open for connection, check if registration required
+                return await validateAuthStatus(actor);
             }
-            return registerRequired;
+
+            return authStatus;
         } catch (err) {
             console.error(err);
             throw err;
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const logout = async () => {
-        setIsLoading(true);
         try {
             removeSelf();
             const authClient = await getAUthClient();
@@ -80,15 +119,8 @@ export const useAuth = () => {
         } catch (err) {
             console.error(err);
             throw err;
-        } finally {
-            setIsLoading(false);
         }
     };
 
-    const isAuthenticated = async () => {
-        const authClient = await getAUthClient();
-        return authClient.isAuthenticated();
-    };
-
-    return { isLoading, login, logout, user, isAuthenticated }
+    return { login, logout, user, authenticatedCheck }
 };

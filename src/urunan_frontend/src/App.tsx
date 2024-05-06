@@ -1,12 +1,10 @@
 import { AppContext } from './context';
-import { useAuth } from './hooks/useAuth';
 import { AppState } from './context/AppState';
-import { BrowserRouter, LoaderFunctionArgs, Route, Router, RouterProvider, Routes, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Login } from './components/login';
 import { NotFound } from './components/notFound';
-import { Home } from './components/home';
+import { Home } from './components/home/home';
 import { PrivateRoute } from './components/privateRoute';
-
 
 function App() {
 
@@ -18,15 +16,11 @@ function App() {
       children: [
         {
           path: '/',
-          children: [
-            {
-              index: true,
-              element:
-                <PrivateRoute>
-                  <Home />
-                </PrivateRoute>,
-            }
-          ],
+          element:
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          ,
         },
         {
           path: '/login',
