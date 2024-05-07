@@ -15,3 +15,15 @@ export const AppContext = createContext<AppContext>({
     actor: urunan_backend,
     setActor: () => { },
 });
+
+interface NewExpenseContext {
+    onSaveClicked: () => void;
+    disabledSaveButton: boolean;
+    setDisabledSaveButton: (disabled: boolean) => void;
+}
+
+export const NewExpenseContext = createContext<NewExpenseContext>({
+    onSaveClicked: () => { },
+    disabledSaveButton: true,
+    setDisabledSaveButton: () => { },
+});

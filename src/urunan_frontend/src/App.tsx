@@ -6,6 +6,7 @@ import { NotFound } from './components/notFound';
 import { Home } from './components/home/home';
 import { PrivateRoute } from './components/privateRoute';
 import { NewExpense } from './components/home/newExpense';
+import { SnackbarProvider } from 'notistack';
 
 function App() {
 
@@ -53,7 +54,9 @@ function App() {
 
   return (
     <AppContext.Provider value={appState}>
-      <RouterProvider router={router} />
+      <SnackbarProvider>
+        <RouterProvider router={router} />
+      </SnackbarProvider>
     </AppContext.Provider>
   );
 

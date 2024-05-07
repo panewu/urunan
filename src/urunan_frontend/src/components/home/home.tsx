@@ -83,7 +83,7 @@ function FriendList() {
 function DetailActionCard() {
     const navigate = useNavigate();
     const cc = "IDR";
-    const balance = currency(0.00);
+    const balance = currency(0.00, { symbol: cc, pattern: '! #' });
     const settlementEnabled = balance.value !== 0.00;
 
     const onNewSplitClicked = (e: any) => {
@@ -101,7 +101,7 @@ function DetailActionCard() {
             <div className="flex flex-col p-4 border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
                 <div className="flex flex-col items-center p-10">
                     <h2 className="text-lg">Balance</h2>
-                    <h2 className="text-2xl font-bold">{cc} {balance.toString()}</h2>
+                    <h2 className="text-2xl font-bold">{balance.format()}</h2>
                 </div>
                 <div className="flex flex-col items-center">
                     <div className="flex flex-row space-x-2">
@@ -130,7 +130,7 @@ function DetailActionCard() {
 
 function Header() {
     return (
-        <header className="flex flex-row justify-between items-center bg-lime-500 border-black border-2 p-2.5">
+        <header className="h-70 flex flex-row justify-between items-center bg-lime-500 border-black border-2 p-2.5">
             <h1 className="text-lime-900 text-5xl font-black">URUNAN</h1>
             <img
                 src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
