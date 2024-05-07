@@ -1,6 +1,6 @@
 import { AppContext } from './context';
 import { AppState } from './context/AppState';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom';
 import { Login } from './components/login';
 import { NotFound } from './components/notFound';
 import { Home } from './components/home/home';
@@ -24,11 +24,20 @@ function App() {
           ,
         },
         {
-          path: '/new-expense',
-          element:
-            <PrivateRoute>
-              <NewExpense />
-            </PrivateRoute>
+          path: '/expense',
+          children: [
+            {
+              index: true,
+              loader: () => redirect('new'),
+            },
+            {
+              path: 'new',
+              element:
+                <PrivateRoute>
+                  <NewExpense />
+                </PrivateRoute>
+            },
+          ]
         },
         {
           path: '/login',
