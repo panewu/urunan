@@ -5,6 +5,7 @@ import { Login } from './components/login';
 import { NotFound } from './components/notFound';
 import { Home } from './components/home/home';
 import { PrivateRoute } from './components/privateRoute';
+import { NewExpense } from './components/home/newExpense';
 
 function App() {
 
@@ -21,6 +22,13 @@ function App() {
               <Home />
             </PrivateRoute>
           ,
+        },
+        {
+          path: '/new-expense',
+          element:
+            <PrivateRoute>
+              <NewExpense />
+            </PrivateRoute>
         },
         {
           path: '/login',

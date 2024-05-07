@@ -75,10 +75,10 @@ export function Login() {
 
     return (
         <div className="flex justify-center items-center h-screen bg-gray-400">
-            <div className="w-3/12 p-12 border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
+            <div className="p-12 border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
                 <div className="flex flex-col justify-center items-center mb-32">
-                    <h1 className="text-lime-800 text-5xl font-black bg-lime-500 border-black border-2 p-2.5">URUNAN</h1>
-                    <p className="text-lime-800 font-semibold">by panewu</p>
+                    <h1 className="text-lime-900 text-5xl font-black bg-lime-500 border-black border-2 p-2.5">URUNAN</h1>
+                    <p className="text-lime-900 font-semibold">by panewu</p>
                 </div>
                 <div className="flex flex-col">
                     {

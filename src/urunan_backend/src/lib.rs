@@ -1,6 +1,8 @@
 use crate::core::runtime::Metrics;
 use crate::core::types::{User, UserID, ID};
-use crate::main_module::types::{ExpenseDetail, SplitBillDebtor, SplitBillExpense};
+use crate::main_module::types::{
+    ExpenseDetail, ExpenseQueryFilter, SplitBillDebtor, SplitBillExpense, SplitBillStatus,
+};
 use ic_cdk::export_candid;
 
 mod core;

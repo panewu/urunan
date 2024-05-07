@@ -4,7 +4,7 @@ use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
-    types::{ExpenseDetail, SplitBillDebtor},
+    types::{ExpenseDetail, ExpenseQueryFilter, SplitBillDebtor, SplitBillStatus},
 };
 
 // User --------------------------------------------------
@@ -85,4 +85,19 @@ async fn new_expense(expense: ExpenseDetail, debtors: Vec<SplitBillDebtor>) -> I
     }
 
     service::new_expense(session, expense, debtors)
+}
+
+#[query]
+async fn participated_expense(mut filter: Vec<ExpenseQueryFilter>) {
+    // if filter is empty, or no status filter found, default to all status filter
+    let default_filter = vec![
+        ExpenseQueryFilter::Status(SplitBillStatus::Active),
+        ExpenseQueryFilter::Status(SplitBillStatus::Repaid),
+        ExpenseQueryFilter::Status(SplitBillStatus::Closed),
+    ];
+    let contain_status_filter = filter.iter().any(|f| default_filter.contains(f));
+    if filter.len() == 0 || !contain_status_filter {
+        filter.push(ExpenseQueryFilter::Status(SplitBillStatus::Active));
+        filter.extend(default_filter);
+    }
 }

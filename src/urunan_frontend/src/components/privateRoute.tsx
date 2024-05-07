@@ -24,6 +24,7 @@ export function PrivateRoute({ children }: RouteProps) {
     }
 
     if (authStatus !== AuthenticationStatus.Ready) {
+        console.log('redirect to login page', authStatus);
         const params = new URLSearchParams();
         if (location.pathname !== '/') {
             params.set('from', location.pathname);

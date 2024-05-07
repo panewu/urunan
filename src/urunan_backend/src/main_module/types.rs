@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 use crate::core::types::{UserID, ID};
 
-#[derive(Debug, CandidType, Deserialize, Default, Clone)]
+#[derive(Debug, CandidType, Deserialize, Default, Clone, PartialEq)]
 pub enum SplitBillMode {
     #[default]
     Evenly,
@@ -14,7 +14,7 @@ pub enum SplitBillMode {
     PerPurchase,
 }
 
-#[derive(Debug, CandidType, Deserialize, Default, Clone)]
+#[derive(Debug, CandidType, Deserialize, Default, Clone, PartialEq)]
 pub enum SplitBillStatus {
     #[default]
     Active,
@@ -22,12 +22,17 @@ pub enum SplitBillStatus {
     Closed,
 }
 
-#[derive(Debug, CandidType, Deserialize, Clone)]
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum PaymentStatus {
     Created,
     Filled,
     Settled,
     Cancelled,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub enum ExpenseQueryFilter {
+    Status(SplitBillStatus),
 }
 
 #[derive(Debug, CandidType, Deserialize, Default, Clone)]
