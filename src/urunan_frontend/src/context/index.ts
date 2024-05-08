@@ -17,13 +17,11 @@ export const AppContext = createContext<AppContext>({
 });
 
 interface NewExpenseContext {
-    onSaveClicked: () => void;
     disabledSaveButton: boolean;
     setDisabledSaveButton: (disabled: boolean) => void;
 }
 
 export const NewExpenseContext = createContext<NewExpenseContext>({
-    onSaveClicked: () => { },
     disabledSaveButton: true,
     setDisabledSaveButton: () => { },
 });

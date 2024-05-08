@@ -1,3 +1,7 @@
+import { buttonDisabledArguments } from "./views";
+
+export { buttonDisabledArguments };
+
 function replacer(key: any, value: any) {
     if (typeof value === 'bigint') {
         return {

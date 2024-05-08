@@ -11,6 +11,16 @@ To learn more before you start working with urunan, see the following documentat
 - [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
 - [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
 
+## urunan tech stack
+| Aspect | <span style="width:290px; display:inline-block">Backend Canister</span> | Frontend Canister |
+|---------------------|-----------------------------|------------------------|
+| Language            | Rust                        | Typescript, javascript | 
+| Framework           | Rust IC CDK                 | Vite.js + React.js     | 
+| UI Library          | -                           | tailwind.css           |
+| Datastore           | IC Stable Structure         | browser localStorage   | 
+| Core Library        | IC CDK, candid, serde       | react, react-router-dom, @dfinity/auth-client, react-hook-form, tailwindcss | 
+| Test Framework      | Rust                        | vitest                 |
+
 ## Running the project locally
 
 If you want to test your project locally, you can use the following commands:
@@ -37,7 +47,10 @@ Which will start a server at `http://localhost:8080`, proxying API requests to t
 
 ## Frontend Project
 
-Fronted React Project is not used. It is only used for playground. The actual frontend project is a mobile application project using Flutter that resides on separate repository.
+React is used as the frontend canister. to run it, use
+```bash
+npm run start
+```
 
 <!-- ### Note on frontend environment variables
 
