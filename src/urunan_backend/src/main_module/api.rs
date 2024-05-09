@@ -4,7 +4,7 @@ use crate::core::types::{User, UserID, ID};
 
 use super::{
     service,
-    types::{ExpenseDetail, ExpenseQueryFilter, SplitBillDebtor, SplitBillStatus},
+    types::{ExpenseDetail, ExpenseQueryFilter, SplitBillDebtor, SplitBillStatus, UserRelIDs},
 };
 
 // User --------------------------------------------------
@@ -63,6 +63,12 @@ fn get_all_users() -> Vec<User> {
 fn get_peers() -> Vec<User> {
     let session = caller();
     service::get_user_connections(session)
+}
+
+#[update]
+async fn connect_with_user(user_id: UserID) -> UserRelIDs {
+    let session = caller();
+    service::connect_with_user(session, user_id)
 }
 
 // Expense--------------------------------------------------------------
