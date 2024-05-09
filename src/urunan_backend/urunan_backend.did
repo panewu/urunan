@@ -24,7 +24,13 @@ type User = record {
   full_name : text;
   avatar : text;
 };
+type UserRelIDs = record {
+  owned_expenses : vec nat;
+  user_connections : vec text;
+  owed_bills : vec nat;
+};
 service : {
+  connect_with_user : (text) -> (UserRelIDs);
   find_user : (text) -> (User) query;
   get_all_users : () -> (vec User) query;
   get_cycles_balance : () -> (nat64) query;
