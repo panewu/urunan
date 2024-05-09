@@ -10,6 +10,7 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { expenseDetailSchema } from "src/model/schema";
 import { ErrorMessage } from "@hookform/error-message";
+import { Modal } from "../widgets/modal";
 
 export function NewExpense() {
 
