@@ -31,6 +31,43 @@ pub fn get_user_by_principal(principal: Principal) -> Option<User> {
     None
 }
 
+pub fn get_all_users() -> Vec<User> {
+    return PROFILES.with_borrow(|o| o.iter().filter_map(|(k, v)| Some(v)).collect());
+}
+
+pub fn get_user_connections(principal: Principal) -> Vec<User> {
+    let my_username =
+        get_username_by_principal(principal).unwrap_or_else(|| trap("user not found"));
+    if let Some(user_rel) = USER_RELS.with_borrow(|ur| ur.get(&my_username)) {
+        let users = PROFILES.with_borrow(|o| {
+            let connected_user = user_rel
+                .user_connections
+                .iter()
+                .filter(|&connected_user| o.contains_key(connected_user))
+                .map(|connected_user| o.get(connected_user).unwrap())
+                .collect::<Vec<User>>();
+            return connected_user;
+        });
+        return users;
+    } else {
+        return Vec::new();
+    }
+}
+
+pub fn connect_with_user(principal: Principal, username: UserID) -> UserRelIDs {
+    let now = utils::timestamp_millis();
+    let my_username =
+        get_username_by_principal(principal).unwrap_or_else(|| trap("user not found"));
+    USER_RELS.with_borrow_mut(|o| {
+        let mut user_rel = match o.get(&username) {
+            None => UserRelIDs::default(),
+            Some(obj) => obj,
+        };
+        user_rel.set_user_connection(&username);
+        user_rel
+    })
+}
+
 pub fn new_user(username: UserID, principal: Principal, full_name: String, avatar: String) {
     let now = utils::timestamp_millis();
     USERS.with(|r| {

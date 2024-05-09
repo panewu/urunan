@@ -26,9 +26,11 @@ type User = record {
 };
 service : {
   find_user : (text) -> (User) query;
+  get_all_users : () -> (vec User) query;
   get_cycles_balance : () -> (nat64) query;
   get_metrics : () -> (Metrics) query;
   get_my_profile : () -> (opt User) query;
+  get_peers : () -> (vec User) query;
   is_my_user_exist : () -> (bool) query;
   is_username_available : (text) -> (bool) query;
   new_expense : (ExpenseDetail, vec SplitBillDebtor) -> (nat);

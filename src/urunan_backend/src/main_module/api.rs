@@ -54,6 +54,17 @@ async fn put_user_full_name(fullname: String) {
     service::update_user(session, Some(fullname), None)
 }
 
+#[query]
+fn get_all_users() -> Vec<User> {
+    service::get_all_users()
+}
+
+#[query]
+fn get_peers() -> Vec<User> {
+    let session = caller();
+    service::get_user_connections(session)
+}
+
 // Expense--------------------------------------------------------------
 
 #[update]
