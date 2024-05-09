@@ -10,7 +10,6 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { expenseDetailSchema } from "src/model/schema";
 import { ErrorMessage } from "@hookform/error-message";
-import { DropDownForm } from "../widgets/dropDownForm";
 
 export function NewExpense() {
 
@@ -24,6 +23,7 @@ export function NewExpense() {
             timestamp: 0,
             tag: [],
             split_mode: 'evenly',
+            debtor: [],
         },
         mode: 'onBlur',
     });
@@ -140,9 +140,19 @@ function ExpenseDetail() {
                 </div>
             </div>
             <h1 className="text-black text-xl font-semibold text-center">Split for</h1>
-            <div className="flex flex-row">
-                {Array.from({ length: 5 }, (_, index) => (
-                    <div key={index} className="items-center flex flex-col">
+            <SplitDebtorList />
+        </div>
+
+    );
+}
+
+function SplitDebtorList() {
+
+    return (
+        <div className="p-6 space-y-2 flex flex-col border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
+            <div className="flex flex-wrap overflow-auto whitespace-nowrap w-auto justify-center">
+                {Array.from({ length: 22 }, (_, index) => (
+                    <div key={index} className="flex flex-col items-center p-1">
                         <img
                             src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
                             className="rounded-full w-16 border-2 border-black hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] "
@@ -153,7 +163,6 @@ function ExpenseDetail() {
                 ))}
             </div>
         </div>
-
     );
 }
 
@@ -169,7 +178,7 @@ function Header() {
             <input
                 type="submit"
                 disabled={saveDisabled && false}
-                className={classNames("font-bold border-black border-2 p-2.5 bg-emerald-500 enabled:hover:bg-emerald-600 shadow-[2px_2px_0px_rgba(0,0,0,1)] enabled:active:bg-emerald-700",
+                className={classNames("font-bold border-black border-2 p-2.5 w-28 bg-emerald-500 enabled:hover:bg-emerald-600 shadow-[2px_2px_0px_rgba(0,0,0,1)] enabled:active:bg-emerald-700",
                     ...buttonDisabledArguments(saveDisabled))}
                 value="Save"
             />
