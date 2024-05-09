@@ -20,6 +20,7 @@ To learn more before you start working with urunan, see the following documentat
 | Datastore           | IC Stable Structure         | browser localStorage   | 
 | Core Library        | IC CDK, candid, serde       | react, react-router-dom, @dfinity/auth-client, react-hook-form, tailwindcss | 
 | Test Framework      | Rust                        | vitest                 |
+| Package Manager     | Cargo                       | npm (Node v18)         | 
 
 ## Running the project locally
 
@@ -33,6 +34,8 @@ dfx start --background
 dfx deploy
 ```
 
+Please be mind that `cargo` must be installed through the official installation on the web.
+
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
 
 If you have made changes to your backend canister, you can generate a new candid interface with
@@ -42,6 +45,8 @@ npm run candid
 ```
 
 at any time. The script is executing `scripts/did.sh` which is a little bit hardcoded right now by setting the canister project name on `CANISTER` variable. It is a comma seperated value.
+
+You also need to install [candid extractor](https://crates.io/crates/candid-extractor) first before the `npm run candid` can be executed successfully.
 
 Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
 
