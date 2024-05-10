@@ -3,9 +3,9 @@ import { appStateUser } from "../hooks/useUser";
 
 export const AppState = () => {
     const { actor, setActor } = appStateActor();
-    const { user, setUser } = appStateUser();
+    const { user, setUser, peers, setPeers } = appStateUser();
 
     return {
-        actor, setActor, user, setUser,
+        actor, setActor, user, setUser, peers, setPeers
     };
 };

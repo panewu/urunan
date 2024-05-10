@@ -1,12 +1,14 @@
 import { urunan_backend } from "@declarations/urunan_backend";
 import { User } from "@declarations/urunan_backend/urunan_backend.did";
-import { createContext } from "react";
+import React, { createContext } from "react";
 
 interface AppContext {
     user: User | null;
     setUser: (user: User | null) => void;
     actor: typeof urunan_backend;
     setActor: (actor: typeof urunan_backend) => void;
+    peers:User[];
+    setPeers: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
 export const AppContext = createContext<AppContext>({
@@ -14,6 +16,9 @@ export const AppContext = createContext<AppContext>({
     setUser: () => { },
     actor: urunan_backend,
     setActor: () => { },
+    peers:[],
+    setPeers: () => { },
+    
 });
 
 interface NewExpenseContext {

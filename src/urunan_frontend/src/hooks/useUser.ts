@@ -3,18 +3,20 @@ import { AppContext } from "../context";
 import { useLocalStorage } from "./useLocalStorage";
 import { User } from "@declarations/urunan_backend/urunan_backend.did";
 import { jsonStringify } from "src/utils";
+import { urunan_backend } from "@declarations/urunan_backend";
 
 export const K_SELF_USER = 'self_user';
 
 export const appStateUser = () => {
     const [user, setUser] = useState<User | null>(null);
-    return { user, setUser };
+    const [peers, setPeers] = useState<User[]>([]);
+    return { user, setUser , peers, setPeers };
 };
 
 export const useUser = () => {
 
     const { setItem } = useLocalStorage();
-    const { user, setUser } = useContext(AppContext);
+    const { user, setUser, actor, setPeers, peers } = useContext(AppContext);
 
     const setSelf = (user: User) => {
         setUser(user);
@@ -26,5 +28,17 @@ export const useUser = () => {
         setItem(K_SELF_USER, '');
     };
 
-    return { user, setSelf, removeSelf }
+    // return
+    const findUser = async (username: string) =>{
+        const user = await actor.find_user(username);
+        return user;
+    }
+
+    // set state
+    const fetchPeers = async () =>{
+        const peers = await actor.get_peers();
+        setPeers(peers);
+    }
+
+    return { user, setSelf, removeSelf, findUser, fetchPeers, peers }
 };
