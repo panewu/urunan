@@ -10,7 +10,6 @@ interface AvatarProps {
     shadow?: boolean;
 }
 export function Avatar({ avatarUrl, username, labelName, showName = true, shadow = false }: AvatarProps) {
-    console.log(shadow);
     return (
         <div className="flex flex-col items-center justify-center">
             {

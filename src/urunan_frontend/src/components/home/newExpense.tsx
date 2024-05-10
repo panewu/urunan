@@ -13,6 +13,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { Modal } from "../widgets/modal";
 import { useUser } from "src/hooks/useUser";
 import { Avatar, AvatarCheckmark } from "../widgets/avatar";
+import { User } from "@declarations/urunan_backend/urunan_backend.did";
 
 export function NewExpense() {
 
@@ -151,6 +152,15 @@ function ExpenseDetail() {
 function SplitDebtorList() {
 
     const { peers, user } = useUser();
+    const [debtorCandidates, setDebtorCandidates] = useState<User[]>([]);
+
+    const onDebtorChecked = (debtor: User) => (checked: boolean) => {
+        if (checked) {
+            setDebtorCandidates([...debtorCandidates, debtor]);
+        } else {
+            setDebtorCandidates(debtorCandidates.filter((d) => d.username !== debtor.username));
+        }
+    };
 
     return (
         <div className="p-6 space-y-2 flex flex-col border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
@@ -161,7 +171,9 @@ function SplitDebtorList() {
                         <AvatarCheckmark
                             avatarUrl={user.avatar}
                             username={user.username}
-                            labelName={`${user.username} (You)`} />
+                            labelName={`${user.username} (You)`}
+                            onChecked={onDebtorChecked(user)}
+                        />
                     )
                 }
                 {
@@ -169,36 +181,14 @@ function SplitDebtorList() {
                         <AvatarCheckmark
                             avatarUrl={peer.avatar}
                             username={peer.username}
-                            key={peer.username} />)
+                            key={peer.username}
+                            onChecked={onDebtorChecked(peer)}
+                        />
+                    )
                 }
-                {
-                    peers.map((peer) =>
-                        <AvatarCheckmark
-                            avatarUrl={peer.avatar}
-                            username={peer.username}
-                            key={peer.username} />)
-                }
-                {
-                    peers.map((peer) =>
-                        <AvatarCheckmark
-                            avatarUrl={peer.avatar}
-                            username={peer.username}
-                            key={peer.username} />)
-                }
-                {
-                    peers.map((peer) =>
-                        <AvatarCheckmark
-                            avatarUrl={peer.avatar}
-                            username={peer.username}
-                            key={peer.username} />)
-                }
-                {
-                    peers.map((peer) =>
-                        <AvatarCheckmark
-                            avatarUrl={peer.avatar}
-                            username={peer.username}
-                            key={peer.username} />)
-                }
+            </div>
+            <div>
+
             </div>
         </div>
     );
