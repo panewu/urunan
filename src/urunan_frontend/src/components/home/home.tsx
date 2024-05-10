@@ -1,5 +1,10 @@
 import currency from "currency.js";
+import { SetStateAction, useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "src/context";
+import { Modal } from "../widgets/modal";
+import { useUser } from "src/hooks/useUser";
 
 export function Home() {
     return (
@@ -49,9 +54,103 @@ function History() {
         </div>
     );
 }
+interface AddUserFormProps {
+    enableModal: boolean
+}
 
+function AddUserForm(props: AddUserFormProps) {
+
+    const { findUser } = useUser();
+    const methods = useForm({
+        defaultValues: {
+            username: undefined,
+        },
+        mode: 'onBlur',
+    });
+
+    const [showError, setShowError] = useState(false);
+    const [username, setUsername] = useState('');
+
+    const handleChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+        setUsername(e.target.value);
+    };
+
+    const [isAddUserEnabled, setIsAddUserEnabled] = useState(false);
+
+    const handleFindUser = async (form: any) => {
+        try {
+            const findExistingUser = await findUser(username);
+            setShowError(false);
+            setIsAddUserEnabled(true); // Enable "Add User" button
+
+        } catch (err) {
+            setShowError(true);
+            setIsAddUserEnabled(false); // Disable "Add User" button
+
+            console.log("error:", err);
+        }
+    };
+    const addUser = async (form: any) => {
+        try {
+            // const saveUser = await saveUser(username);
+            alert(username);
+
+
+        } catch (err) {
+
+            console.log("error:", err);
+        }
+    };
+
+    const handleAddUser = () => {
+        methods.handleSubmit(addUser)();
+    };
+
+    return (
+        <Modal title="Add Peer" show={props.enableModal}>
+            <form>
+                <div className="flex flex-col">
+                    <input
+                        {...methods.register('username')}
+                        name="username"
+                        inputMode="text"
+                        className=
+                        "border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                        placeholder="username"
+                        onChange={handleChange} // add onChange event to update username state
+
+                    />
+                    {showError && <p className="text-red-500">User not found</p>}
+
+                </div>
+                <div className="flex mt-2">
+                    <button
+                        type="button"
+                        onClick={() => handleFindUser(username)}
+                        className="h-12 border-black border-2 p-2.5 bg-[#A6FAFF] hover:bg-[#79F7FF] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF]"
+                    >
+                        Find User
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleAddUser}
+                        className={`h-12 border-black border-2 p-2.5 ml-2 ${isAddUserEnabled ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 cursor-not-allowed'
+                            }`}
+                        disabled={!isAddUserEnabled}
+                    >
+                        Add User
+                    </button>
+                </div>
+            </form>
+        </Modal>
+    );
+}
 
 function FriendList() {
+
+    const [showModal, setShowModal] = useState(false);
+    const { peers } = useUser();
+
     return (
         <div className="p-4">
             <div className="flex flex-row my-2 space-x-2">
@@ -65,6 +164,7 @@ function FriendList() {
                 </button>
             </div>
             <div className="flex flex-row overflow-x-auto border-black border-2 bg-gray-100 p-4 justify-center space-x-4">
+                {JSON.stringify(peers)}
                 {Array.from({ length: 5 }, (_, index) => (
                     <div key={index} className="items-center flex flex-col">
                         <img
@@ -75,7 +175,17 @@ function FriendList() {
                         <div className="text-sm">Joe</div>
                     </div>
                 ))}
+                <div className="items-center flex flex-col">
+                    <button
+                        onClick={() => setShowModal(!showModal)}
+                        className="bg-green-500 hover:bg-green-700 border-black border-2 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] text-white font-bold py-2 px-4 rounded-full flex items-center justify-center h-16 w-16">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.8425 24V0H13.1575V24H10.8425ZM0 13.1664V10.8336H24V13.1664H0Z" fill="black" />
+                        </svg>
+                    </button>
+                </div>
             </div>
+            <AddUserForm enableModal={showModal} />
         </div>
     );
 }
