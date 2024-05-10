@@ -1,5 +1,5 @@
 import currency from "currency.js";
-import { SetStateAction, useContext, useState } from "react";
+import { SetStateAction, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "src/context";
@@ -55,12 +55,14 @@ function History() {
     );
 }
 interface AddUserFormProps {
-    enableModal: boolean
+    enableModal: boolean;
+    onCloseModal: () => void;
+    onAddPeer: () => void;
 }
 
 function AddUserForm(props: AddUserFormProps) {
 
-    const { findUser } = useUser();
+    const { findUser, addPeer } = useUser();
     const methods = useForm({
         defaultValues: {
             username: undefined,
@@ -70,6 +72,11 @@ function AddUserForm(props: AddUserFormProps) {
 
     const [showError, setShowError] = useState(false);
     const [username, setUsername] = useState('');
+    const [showModal, setShowModal] = useState(props.enableModal);
+
+    useEffect(() => {
+        setShowModal(props.enableModal);
+    }, [props.enableModal]);
 
     const handleChange = (e: { target: { value: SetStateAction<string>; }; }) => {
         setUsername(e.target.value);
@@ -92,12 +99,10 @@ function AddUserForm(props: AddUserFormProps) {
     };
     const addUser = async (form: any) => {
         try {
-            // const saveUser = await saveUser(username);
-            alert(username);
-
-
+            await addPeer(username);
+            setShowModal(false);
+            props.onAddPeer();
         } catch (err) {
-
             console.log("error:", err);
         }
     };
@@ -107,8 +112,8 @@ function AddUserForm(props: AddUserFormProps) {
     };
 
     return (
-        <Modal title="Add Peer" show={props.enableModal}>
-            <form>
+        <Modal title="Add Peer" show={showModal} onClose={props.onCloseModal}>
+            <form onSubmit={methods.handleSubmit(addUser)}>
                 <div className="flex flex-col">
                     <input
                         {...methods.register('username')}
@@ -123,22 +128,22 @@ function AddUserForm(props: AddUserFormProps) {
                     {showError && <p className="text-red-500">User not found</p>}
 
                 </div>
-                <div className="flex mt-2">
+                <div className="flex mt-2 w-full justify-center">
                     <button
                         type="button"
                         onClick={() => handleFindUser(username)}
-                        className="h-12 border-black border-2 p-2.5 bg-[#A6FAFF] hover:bg-[#79F7FF] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF]"
+                        className="h-12 w-24 border-black border-2 p-2.5 bg-[#A6FAFF] hover:bg-[#79F7FF] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF]"
                     >
-                        Find User
+                        Find
                     </button>
                     <button
-                        type="button"
-                        onClick={handleAddUser}
-                        className={`h-12 border-black border-2 p-2.5 ml-2 ${isAddUserEnabled ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-300 cursor-not-allowed'
+                        type="submit"
+                        // onClick={handleAddUser}
+                        className={`h-12 w-24 border-black border-2 p-2.5 ml-2 ${isAddUserEnabled ? 'bg-lime-500 hover:bg-lime-600' : 'bg-gray-300 cursor-not-allowed'
                             }`}
                         disabled={!isAddUserEnabled}
                     >
-                        Add User
+                        Add
                     </button>
                 </div>
             </form>
@@ -149,7 +154,17 @@ function AddUserForm(props: AddUserFormProps) {
 function FriendList() {
 
     const [showModal, setShowModal] = useState(false);
-    const { peers } = useUser();
+    const { peers, fetchPeers } = useUser();
+
+    useEffect(() => {
+        console.log('fetching peers...');
+        fetchPeers()
+            .catch(console.error);
+    }, []);
+
+    const onAddPeer = async () => {
+        await fetchPeers();
+    };
 
     return (
         <div className="p-4">
@@ -164,28 +179,32 @@ function FriendList() {
                 </button>
             </div>
             <div className="flex flex-row overflow-x-auto border-black border-2 bg-gray-100 p-4 justify-center space-x-4">
-                {JSON.stringify(peers)}
-                {Array.from({ length: 5 }, (_, index) => (
-                    <div key={index} className="items-center flex flex-col">
-                        <img
-                            src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
-                            className="rounded-full w-16 border-2 border-black hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] "
-                            alt="Profile"
-                        />
-                        <div className="text-sm">Joe</div>
-                    </div>
-                ))}
+                {
+                    peers.map((peer) => (
+                        <div key={peer.username} className="items-center flex flex-col">
+                            <img
+                                src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
+                                className="rounded-full w-16 border-2 border-black hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] "
+                                alt="Profile"
+                            />
+                            <div className="text-sm">{peer.username}</div>
+                        </div>
+                    ))
+                }
                 <div className="items-center flex flex-col">
                     <button
                         onClick={() => setShowModal(!showModal)}
-                        className="bg-green-500 hover:bg-green-700 border-black border-2 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] text-white font-bold py-2 px-4 rounded-full flex items-center justify-center h-16 w-16">
+                        className="bg-lime-500 hover:bg-lime-600 border-black border-2 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] font-bold py-2 px-4 rounded-full flex items-center justify-center h-16 w-16">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10.8425 24V0H13.1575V24H10.8425ZM0 13.1664V10.8336H24V13.1664H0Z" fill="black" />
                         </svg>
                     </button>
                 </div>
             </div>
-            <AddUserForm enableModal={showModal} />
+            <AddUserForm
+                enableModal={showModal}
+                onAddPeer={onAddPeer}
+                onCloseModal={() => setShowModal(false)} />
         </div>
     );
 }
