@@ -6,7 +6,7 @@ import { Checkbox } from "../widgets/checkbox";
 import currency from "currency.js";
 import classNames from "classnames";
 import { buttonDisabledArguments } from "src/utils";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { expenseDetailSchema } from "src/model/schema";
 import { ErrorMessage } from "@hookform/error-message";
@@ -153,6 +153,9 @@ function SplitDebtorList() {
 
     const { peers, user } = useUser();
     const [debtorCandidates, setDebtorCandidates] = useState<User[]>([]);
+    const { getValues } = useFormContext();
+    const amount = getValues('amount');
+    console.log(amount);
 
     const onDebtorChecked = (debtor: User) => (checked: boolean) => {
         if (checked) {
@@ -164,7 +167,7 @@ function SplitDebtorList() {
 
     return (
         <div className="p-6 space-y-2 flex flex-col border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
-            <h1 className="text-black text-xl font-semibold text-center">Split for</h1>
+            <h1 className="text-black text-xl font-semibold text-center">Split for {debtorCandidates.length} person</h1>
             <div className="flex flex-row items-baseline overflow-x-auto space-x-2 border-black border-2 bg-white p-2">
                 {
                     user && (
@@ -187,8 +190,19 @@ function SplitDebtorList() {
                     )
                 }
             </div>
-            <div>
-
+            <div className="flex flex-col">
+                {
+                    debtorCandidates.map((debtor) => (
+                        <div key={debtor.username} className="flex flex-row items-baseline space-x-2 p-2">
+                            <AvatarCheckmark
+                                avatarUrl={debtor.avatar}
+                                username={debtor.username}
+                                labelName={debtor.username}
+                                onChecked={onDebtorChecked(debtor)}
+                            />
+                        </div>
+                    ))
+                }
             </div>
         </div>
     );
@@ -201,7 +215,7 @@ function Header() {
     const saveDisabled = !isDirty || isSubmitting;
 
     return (
-        <header className="h-70 flex flex-row justify-between items-center bg-lime-500 text-black border-black border-b-2 p-2.5">
+        <header className="sticky top-0 h-70 flex flex-row justify-between items-center bg-lime-500 text-black border-black border-b-2 p-2.5">
             <h1 className="text-2xl font-black" onClick={(e) => navigate('/')}>URUNAN</h1>
             <input
                 type="submit"
