@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "src/context";
 import { Modal } from "../widgets/modal";
 import { useUser } from "src/hooks/useUser";
+import { hash } from "crypto";
+import { hashCode, hexColorFromNumber } from "src/utils";
+import { Avatar } from "../widgets/avatar";
 
 export function Home() {
     return (
@@ -182,11 +185,7 @@ function FriendList() {
                 {
                     peers.map((peer) => (
                         <div key={peer.username} className="items-center flex flex-col">
-                            <img
-                                src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
-                                className="rounded-full w-16 border-2 border-black hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] "
-                                alt="Profile"
-                            />
+                            <Avatar username={peer.username} avatarUrl={peer.avatar} />
                             <div className="text-sm">{peer.username}</div>
                         </div>
                     ))
