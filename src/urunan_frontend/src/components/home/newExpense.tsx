@@ -155,7 +155,7 @@ function SplitDebtorList() {
     return (
         <div className="p-6 space-y-2 flex flex-col border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
             <h1 className="text-black text-xl font-semibold text-center">Split for</h1>
-            <div className="flex flex-wrap overflow-auto whitespace-nowrap w-auto justify-center">
+            <div className="flex flex-wrap whitespace-nowrap py-2">
                 {
                     peers.map((peer) =>
                         <Avatar

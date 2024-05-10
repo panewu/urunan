@@ -184,10 +184,10 @@ function FriendList() {
             <div className="flex flex-row overflow-x-auto border-black border-2 bg-gray-100 p-4 justify-center space-x-4">
                 {
                     peers.map((peer) => (
-                        <div key={peer.username} className="items-center flex flex-col">
-                            <Avatar username={peer.username} avatarUrl={peer.avatar} />
-                            <div className="text-sm">{peer.username}</div>
-                        </div>
+                        <Avatar
+                            key={peer.username}
+                            username={peer.username}
+                            avatarUrl={peer.avatar} />
                     ))
                 }
                 <div className="items-center flex flex-col">
