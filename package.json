@@ -10,6 +10,7 @@
     "pretest": "npm run prebuild --workspaces --if-present",
     "start": "npm start --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
+    "test:rust": "RUSTFLAGS=\"-C instrument-coverage\" LLVM_PROFILE_FILE=\"target/debug/coverage/test-%p-%m.profraw\" cargo test --tests",
     "candid": "scripts/did.sh && dfx generate"
   },
   "type": "module",

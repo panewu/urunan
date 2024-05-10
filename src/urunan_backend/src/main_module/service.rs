@@ -263,3 +263,40 @@ pub fn new_expense(
     });
     id
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{ExpenseDetail, SplitBillDebtor};
+    use candid::Principal;
+
+    #[test]
+    fn test_get_user_profile() {
+        let user = get_user_profile(String::from("fulan"));
+        assert!(user.is_none());
+    }
+
+    #[test]
+    fn test_get_username_by_principal() {
+        let username = get_username_by_principal(Principal::anonymous());
+        assert!(username.is_none());
+    }
+
+    #[test]
+    fn test_get_user_by_principal() {
+        let user = get_user_by_principal(Principal::anonymous());
+        assert!(user.is_none());
+    }
+
+    #[test]
+    fn test_get_all_users() {
+        let users = get_all_users();
+        assert!(users.is_empty());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_get_user_connection() {
+        let _ = get_user_connections(Principal::anonymous());
+    }
+}
