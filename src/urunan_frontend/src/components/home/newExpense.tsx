@@ -12,7 +12,7 @@ import { expenseDetailSchema } from "src/model/schema";
 import { ErrorMessage } from "@hookform/error-message";
 import { Modal } from "../widgets/modal";
 import { useUser } from "src/hooks/useUser";
-import { Avatar } from "../widgets/avatar";
+import { Avatar, AvatarCheckmark } from "../widgets/avatar";
 
 export function NewExpense() {
 
@@ -50,7 +50,7 @@ export function NewExpense() {
                     <form onSubmit={methods.handleSubmit(saveClicked)}>
                         <Header />
                         <div className="container mx-auto">
-                            <div className="p-6 space-y-4">
+                            <div className="p-4 space-y-4">
                                 <ExpenseDetail />
                                 <SplitDebtorList />
                             </div>
@@ -150,15 +150,51 @@ function ExpenseDetail() {
 
 function SplitDebtorList() {
 
-    const { peers } = useUser();
+    const { peers, user } = useUser();
 
     return (
         <div className="p-6 space-y-2 flex flex-col border-black border-2 rounded-md shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-gray-100">
             <h1 className="text-black text-xl font-semibold text-center">Split for</h1>
-            <div className="flex flex-wrap whitespace-nowrap py-2">
+            <div className="flex flex-row items-baseline overflow-x-auto space-x-2 border-black border-2 bg-white p-2">
+                {
+                    user && (
+                        <AvatarCheckmark
+                            avatarUrl={user.avatar}
+                            username={user.username}
+                            labelName={`${user.username} (You)`} />
+                    )
+                }
                 {
                     peers.map((peer) =>
-                        <Avatar
+                        <AvatarCheckmark
+                            avatarUrl={peer.avatar}
+                            username={peer.username}
+                            key={peer.username} />)
+                }
+                {
+                    peers.map((peer) =>
+                        <AvatarCheckmark
+                            avatarUrl={peer.avatar}
+                            username={peer.username}
+                            key={peer.username} />)
+                }
+                {
+                    peers.map((peer) =>
+                        <AvatarCheckmark
+                            avatarUrl={peer.avatar}
+                            username={peer.username}
+                            key={peer.username} />)
+                }
+                {
+                    peers.map((peer) =>
+                        <AvatarCheckmark
+                            avatarUrl={peer.avatar}
+                            username={peer.username}
+                            key={peer.username} />)
+                }
+                {
+                    peers.map((peer) =>
+                        <AvatarCheckmark
                             avatarUrl={peer.avatar}
                             username={peer.username}
                             key={peer.username} />)
