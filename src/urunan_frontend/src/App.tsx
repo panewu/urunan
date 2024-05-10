@@ -17,26 +17,25 @@ function App() {
       id: 'root',
       children: [
         {
-          path: '/',
-          element:
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          ,
-        },
-        {
-          path: '/expense',
+          id: 'privateRoute',
+          element: <PrivateRoute />,
           children: [
             {
-              index: true,
-              loader: () => redirect('new'),
+              path: '/',
+              element: <Home />,
             },
             {
-              path: 'new',
-              element:
-                <PrivateRoute>
-                  <NewExpense />
-                </PrivateRoute>
+              path: '/expense',
+              children: [
+                {
+                  index: true,
+                  loader: () => redirect('new'),
+                },
+                {
+                  path: 'new',
+                  element: <NewExpense />,
+                },
+              ]
             },
           ]
         },
