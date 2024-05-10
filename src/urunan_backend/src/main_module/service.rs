@@ -55,17 +55,24 @@ pub fn get_user_connections(principal: Principal) -> Vec<User> {
 }
 
 pub fn connect_with_user(principal: Principal, username: UserID) -> UserRelIDs {
-    let now = utils::timestamp_millis();
     let my_username =
-        get_username_by_principal(principal).unwrap_or_else(|| trap("user not found"));
+        &get_username_by_principal(principal).unwrap_or_else(|| trap("user not found"));
     USER_RELS.with_borrow_mut(|o| {
-        let mut user_rel = match o.get(&username) {
-            None => UserRelIDs::default(),
+        let mut should_insert = false;
+        let mut user_rel = match o.get(my_username) {
+            None => {
+                should_insert = true;
+                UserRelIDs::default()
+            }
             Some(obj) => obj,
         };
         user_rel.set_user_connection(&username);
-        user_rel
-    })
+        if should_insert {
+            o.insert(my_username.to_owned(), user_rel);
+        }
+    });
+
+    USER_RELS.with_borrow(|o| o.get(&my_username).unwrap())
 }
 
 pub fn new_user(username: UserID, principal: Principal, full_name: String, avatar: String) {
@@ -224,9 +231,8 @@ pub fn new_expense(
         debtors.iter_mut().for_each(|debtor| {
             // get generated id
             let debt_id = NEXT_SPLIT_ID.with_borrow(|o| *o.get());
-            // insert to bTree
+            // set expense id to debtor
             debtor.expense_id = id;
-            o.insert(debt_id, debtor.clone());
             // calculate sum amount
             sum += debtor.amount;
             // set expense relation with debtor
@@ -234,11 +240,21 @@ pub fn new_expense(
             // set user connection if not self userID
             if username != debtor.username {
                 user_rel.set_user_connection(&debtor.username);
+                // set owed bill relation for each debtor other than self
+                let mut debtor_ur =
+                    USER_RELS.with_borrow_mut(|ur| match ur.get(&debtor.username) {
+                        None => UserRelIDs::default(),
+                        Some(obj) => obj,
+                    });
+                debtor_ur.set_user_owed_bill(&debt_id);
+            } else {
+                // set owed bill relation for self
+                user_rel.set_user_owed_bill(&debt_id);
             }
-            // set owed bill relation
-            user_rel.set_user_owed_bill(&debt_id);
             // set expense debtor relation
             expense_rel.set_expense_debtor(&debt_id);
+            // insert to bTree
+            o.insert(debt_id, debtor.clone());
             // increment id for debtor
             increment_next_split_bill_debtor_id();
         });
@@ -248,13 +264,15 @@ pub fn new_expense(
     });
 
     let new_expense = SplitBillExpense {
-        owner: username,
+        owner: username.to_owned(),
         detail: expense_detail,
         status: SplitBillStatus::Active,
     };
 
+    // store all data
     EXPENSES.with_borrow_mut(|o| o.insert(id, new_expense));
-    EXPENSE_RELS.with_borrow_mut(|o| {});
+    EXPENSE_RELS.with_borrow_mut(|o| o.insert(id, expense_rel));
+    USER_RELS.with_borrow_mut(|o| o.insert(username.to_owned(), user_rel));
 
     NEXT_EXPENSE_ID.with_borrow_mut(|next_id| {
         next_id
