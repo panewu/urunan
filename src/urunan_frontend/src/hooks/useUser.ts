@@ -2,10 +2,11 @@ import { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { useLocalStorage } from "./useLocalStorage";
 import { User } from "@declarations/urunan_backend/urunan_backend.did";
-import { jsonStringify } from "src/utils";
+import { jsonParse, jsonStringify } from "src/utils";
 import { urunan_backend } from "@declarations/urunan_backend";
 
 export const K_SELF_USER = 'self_user';
+export const K_PEERS = 'peers';
 
 export const appStateUser = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -38,6 +39,7 @@ export const useUser = () => {
     const fetchPeers = async () => {
         const peers = await actor.get_peers();
         setPeers(peers);
+        setItem(K_PEERS, jsonStringify(peers));
     }
 
     const addPeer = async (username: string) => {
@@ -46,4 +48,31 @@ export const useUser = () => {
     }
 
     return { user, setSelf, removeSelf, findUser, fetchPeers, addPeer, peers }
+};
+
+export const useRehydrateUser = () => {
+    const { getItem } = useLocalStorage();
+    const { user, setUser, peers, setPeers } = useContext(AppContext);
+
+    const validateStoredPeers = () => {
+        if (peers.length) {
+            return;
+        }
+        const peersStored = getItem(K_PEERS);
+        if (peersStored) {
+            setPeers(jsonParse(peersStored));
+        }
+    };
+
+    const validateStoredUser = () => {
+        if (!!user) {
+            return;
+        }
+        const userStored = getItem(K_SELF_USER);
+        if (userStored) {
+            setUser(jsonParse(userStored));
+        }
+    };
+
+    return { validateStoredUser, validateStoredPeers };
 };

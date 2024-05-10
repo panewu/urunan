@@ -13,6 +13,7 @@ export function PrivateRoute({ children }: RouteProps) {
         setIsLoading(true);
         authenticatedCheck()
             .then(state => {
+                console.log('authenticatedCheck', state);
                 setAuthStatus(state);
             })
             .catch(console.error)

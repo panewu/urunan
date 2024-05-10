@@ -1,4 +1,4 @@
-import { K_SELF_USER, useUser } from "./useUser";
+import { K_SELF_USER, useRehydrateUser, useUser } from "./useUser";
 import { AuthClient } from "@dfinity/auth-client";
 import { useLocalStorage } from "./useLocalStorage";
 import { createActor, urunan_backend } from '@declarations/urunan_backend';
@@ -23,19 +23,9 @@ export enum AuthenticationStatus {
 
 export const useAuth = () => {
 
-    const { getItem } = useLocalStorage();
     const { setActor } = useActor();
     const { user, setSelf, removeSelf } = useUser();
-
-    const validateStoredUser = () => {
-        if (!!user) {
-            return;
-        }
-        const userStored = getItem(K_SELF_USER);
-        if (userStored) {
-            setSelf(jsonParse(userStored));
-        }
-    };
+    const { validateStoredPeers, validateStoredUser } = useRehydrateUser();
 
     /**
      * After internet identity connected, check if user profile already registered in the backend
@@ -64,6 +54,7 @@ export const useAuth = () => {
     const authenticatedCheck = async () => {
         // rehydrate user
         validateStoredUser();
+        validateStoredPeers();
         // check if identity connected
         const authClient = await getAUthClient();
         const isAuth = await authClient.isAuthenticated();
