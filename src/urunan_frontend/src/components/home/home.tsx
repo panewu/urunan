@@ -65,7 +65,7 @@ interface AddUserFormProps {
 
 function AddUserForm(props: AddUserFormProps) {
 
-    const { findUser, addPeer } = useUser();
+    const { findUser, addPeer, myProfile } = useUser();
     const methods = useForm({
         defaultValues: {
             username: undefined,
@@ -74,6 +74,7 @@ function AddUserForm(props: AddUserFormProps) {
     });
 
     const [showError, setShowError] = useState(false);
+    const [showErrorExistingUser, setShowErrorExistingUser] = useState(false);
     const [username, setUsername] = useState('');
     const [showModal, setShowModal] = useState(props.enableModal);
 
@@ -89,17 +90,36 @@ function AddUserForm(props: AddUserFormProps) {
 
     const handleFindUser = async (form: any) => {
         try {
-            const findExistingUser = await findUser(username);
-            setShowError(false);
-            setIsAddUserEnabled(true); // Enable "Add User" button
+            const profile = await myProfile(); // Get user profile
+            await findUser(username); // Check if user already exists
+
+            console.log('from input');
+            console.log(username);
+
+            if (username === profile) {
+                // If user already exists, display error message
+                setShowErrorExistingUser(true);
+                setShowError(false);
+                setIsAddUserEnabled(false); // Disable "Add User" button
+            } else {
+                // If user does not exist, enable "Add User" button
+                setShowErrorExistingUser(false);
+                setShowError(false);
+                setIsAddUserEnabled(true); // Enable "Add User" button
+            }
 
         } catch (err) {
+            // Handle error if any
             setShowError(true);
+            setShowErrorExistingUser(false);
             setIsAddUserEnabled(false); // Disable "Add User" button
 
             console.log("error:", err);
         }
     };
+
+
+
     const addUser = async (form: any) => {
         try {
             await addPeer(username);
@@ -129,6 +149,7 @@ function AddUserForm(props: AddUserFormProps) {
 
                     />
                     {showError && <p className="text-red-500">User not found</p>}
+                    {showErrorExistingUser && <p className="text-red-500">You can't put yourself into peer</p>}
 
                 </div>
                 <div className="flex mt-2 w-full justify-center">

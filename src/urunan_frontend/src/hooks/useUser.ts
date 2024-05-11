@@ -4,6 +4,7 @@ import { useLocalStorage } from "./useLocalStorage";
 import { User } from "@declarations/urunan_backend/urunan_backend.did";
 import { jsonParse, jsonStringify } from "src/utils";
 import { urunan_backend } from "@declarations/urunan_backend";
+import { profile } from "console";
 
 export const K_SELF_USER = 'self_user';
 export const K_PEERS = 'peers';
@@ -47,7 +48,13 @@ export const useUser = () => {
         console.log("user relation after adding peer:", userRelation);
     }
 
-    return { user, setSelf, removeSelf, findUser, fetchPeers, addPeer, peers }
+    const myProfile = async () => {
+        const profile = await actor.get_my_profile();
+        console.log(profile[0]?.username);
+        return profile[0]?.username;
+    }
+
+    return { user, setSelf, removeSelf, findUser, fetchPeers, addPeer, peers, myProfile }
 };
 
 export const useRehydrateUser = () => {
