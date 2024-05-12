@@ -248,7 +248,6 @@ pub fn new_expense(
             expense_rel.debtors.push(debt_id);
             // set user connection if not self userID
             if username != debtor.username {
-                user_rel.set_user_connection(&debtor.username);
                 // set owed bill relation for each debtor other than self
                 let mut debtor_ur =
                     USER_RELS.with_borrow_mut(|ur| match ur.get(&debtor.username) {
@@ -256,6 +255,7 @@ pub fn new_expense(
                         Some(obj) => obj,
                     });
                 debtor_ur.set_user_owed_bill(&debt_id);
+                USER_RELS.with_borrow_mut(|o| o.insert(debtor.username.to_owned(), debtor_ur));
             } else {
                 // set owed bill relation for self
                 user_rel.set_user_owed_bill(&debt_id);
