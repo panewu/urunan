@@ -59,6 +59,7 @@ pub fn connect_with_user(principal: Principal, username: UserID) -> UserRelIDs {
     let my_username =
         &get_username_by_principal(principal).unwrap_or_else(|| trap("user not found"));
     USER_RELS.with_borrow_mut(|o| {
+        // add connection to self
         let mut should_insert = false;
         let mut user_rel = match o.get(my_username) {
             None => {
@@ -68,8 +69,15 @@ pub fn connect_with_user(principal: Principal, username: UserID) -> UserRelIDs {
             Some(obj) => obj,
         };
         user_rel.set_user_connection(&username);
+        // add connection to other
+        let mut other_user = match o.get(&username) {
+            None => UserRelIDs::default(),
+            Some(obj) => obj,
+        };
+        other_user.set_user_connection(my_username);
         if should_insert {
             o.insert(my_username.to_owned(), user_rel);
+            o.insert(username.to_owned(), other_user);
         }
     });
 
@@ -296,7 +304,10 @@ pub fn get_expenses(
     let username = USERS
         .with_borrow(|o| o.get(&principal))
         .unwrap_or_else(|| trap("user not found"));
-    let user_rel = USER_RELS.with_borrow(|o| o.get(&username)).unwrap();
+    let user_rel = match USER_RELS.with_borrow(|o| o.get(&username)) {
+        None => return vec![],
+        Some(obj) => obj,
+    };
 
     let expenses: Vec<(ID, SplitBillExpense)> = match split_ownership {
         SplitBillOwnership::Owned => user_rel
