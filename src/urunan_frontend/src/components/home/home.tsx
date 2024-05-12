@@ -65,7 +65,7 @@ interface AddUserFormProps {
 
 function AddUserForm(props: AddUserFormProps) {
 
-    const { findUser, addPeer, myProfile } = useUser();
+    const { findUser, addPeer, user } = useUser();
     const methods = useForm({
         defaultValues: {
             username: undefined,
@@ -90,13 +90,8 @@ function AddUserForm(props: AddUserFormProps) {
 
     const handleFindUser = async (form: any) => {
         try {
-            const profile = await myProfile(); // Get user profile
             await findUser(username); // Check if user already exists
-
-            console.log('from input');
-            console.log(username);
-
-            if (username === profile) {
+            if (username === user?.username) {
                 // If user already exists, display error message
                 setShowErrorExistingUser(true);
                 setShowError(false);
@@ -117,8 +112,6 @@ function AddUserForm(props: AddUserFormProps) {
             console.log("error:", err);
         }
     };
-
-
 
     const addUser = async (form: any) => {
         try {
