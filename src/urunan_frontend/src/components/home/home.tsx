@@ -63,7 +63,7 @@ function History() {
                         </div>
                         <div className="min-w-20 flex flex-col">
 
-                            <div className="text-lg bg-lime-500 font-medium text-center border-2 border-black">
+                            <div className="text-sm bg-lime-500 font-medium text-center border-2 border-black">
                                 {fromSplitBillStatus(exp.status)}
                             </div>
                             <div className="text-end font-bold">
