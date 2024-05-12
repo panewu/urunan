@@ -13,7 +13,10 @@ import { ErrorMessage } from "@hookform/error-message";
 import { Modal } from "../widgets/modal";
 import { useUser } from "src/hooks/useUser";
 import { Avatar, AvatarCheckmark } from "../widgets/avatar";
-import { User } from "@declarations/urunan_backend/urunan_backend.did";
+import { SplitBillDebtor, User } from "@declarations/urunan_backend/urunan_backend.did";
+import { userToDebtorCandidate } from "src/model/mapper";
+import { SplitDebtorCandidates } from "src/model/views";
+import CurrencyInput from "react-currency-input-field";
 
 export function NewExpense() {
 
@@ -29,7 +32,7 @@ export function NewExpense() {
             split_mode: 'evenly',
             debtor: [],
         },
-        mode: 'onBlur',
+        mode: 'onChange',
     });
     const [saveDisabled, setSaveDisabled] = useState(false);
 
@@ -87,18 +90,17 @@ function ExpenseDetail() {
             </div>
 
             <div className="flex flex-col">
-                <input
-                    {...register('amount')}
-                    inputMode="decimal"
+                <CurrencyInput
+                    name="amount"
                     className=
                     "flex-grow border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
                     placeholder="Amount"
-                    onChange={(e) => {
-                        const input = e.target;
-                        const selectionStart = input.selectionStart;
-                        const val = currency(input.value, { symbol: '' });
-                        input.value = val.format();
-                        input.setSelectionRange(selectionStart, selectionStart);
+                    decimalScale={2}
+                    decimalSeparator="."
+                    groupSeparator=","
+                    onValueChange={(v, name, values) => {
+                        setValue('amount', values?.float);
+                        trigger('amount');
                     }}
                 />
                 <ErrorMessage
@@ -139,7 +141,6 @@ function ExpenseDetail() {
                         onChecked={(checked) => {
                             setValue('split_mode', checked ? 'evenly' : 'portion');
                         }}
-                        disabled={true}
                     />
                     <span className="text-black">Distribute Evenly</span>
                 </div>
@@ -152,14 +153,12 @@ function ExpenseDetail() {
 function SplitDebtorList() {
 
     const { peers, user } = useUser();
-    const [debtorCandidates, setDebtorCandidates] = useState<User[]>([]);
+    const [debtorCandidates, setDebtorCandidates] = useState<SplitDebtorCandidates[]>([]);
     const { getValues } = useFormContext();
-    const amount = getValues('amount');
-    console.log(amount);
 
     const onDebtorChecked = (debtor: User) => (checked: boolean) => {
         if (checked) {
-            setDebtorCandidates([...debtorCandidates, debtor]);
+            setDebtorCandidates([...debtorCandidates, userToDebtorCandidate(debtor)]);
         } else {
             setDebtorCandidates(debtorCandidates.filter((d) => d.username !== debtor.username));
         }
@@ -194,11 +193,10 @@ function SplitDebtorList() {
                 {
                     debtorCandidates.map((debtor) => (
                         <div key={debtor.username} className="flex flex-row items-baseline space-x-2 p-2">
-                            <AvatarCheckmark
+                            <Avatar
                                 avatarUrl={debtor.avatar}
                                 username={debtor.username}
                                 labelName={debtor.username}
-                                onChecked={onDebtorChecked(debtor)}
                             />
                         </div>
                     ))

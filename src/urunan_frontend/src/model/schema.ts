@@ -10,7 +10,7 @@ export const amountSchema = yup.number()
         }
         return value;
     })
-    .moreThan(0, 'Must be greater than 0')
+    .moreThan(0.00, 'Must be greater than 0')
     .required('Amount is required');
 
 export const debtorSchema = yup.object({

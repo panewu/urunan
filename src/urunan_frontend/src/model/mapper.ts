@@ -1,6 +1,7 @@
-import { PaymentStatus, SplitBillMode } from "@declarations/urunan_backend/urunan_backend.did";
+import { PaymentStatus, SplitBillDebtor, SplitBillMode, User } from "@declarations/urunan_backend/urunan_backend.did";
+import { SplitDebtorCandidates } from "./views";
 
-const toSplitBillMode = (mode: string): SplitBillMode => {
+export const toSplitBillMode = (mode: string): SplitBillMode => {
     switch (mode.toLowerCase()) {
         case 'portion':
             return { Portion: null };
@@ -11,7 +12,7 @@ const toSplitBillMode = (mode: string): SplitBillMode => {
     }
 }
 
-const toPaymentStatus = (status: string | null | undefined): [] | [PaymentStatus] => {
+export const toPaymentStatus = (status: string | null | undefined): [] | [PaymentStatus] => {
     switch (status?.toLowerCase() || '') {
         case 'filled':
             return [{ Filled: null }];
@@ -24,4 +25,13 @@ const toPaymentStatus = (status: string | null | undefined): [] | [PaymentStatus
         default:
             return [];
     }
+}
+
+export const userToDebtorCandidate = (user: User): SplitDebtorCandidates => {
+    return {
+        ...user,
+        payment_status: [],
+        expense_id: BigInt(0),
+        amount: 0
+    };
 }
