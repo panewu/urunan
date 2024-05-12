@@ -11,6 +11,7 @@ import { Avatar } from "../widgets/avatar";
 import { useActor } from "src/hooks/useActor";
 import { ExpenseOutline } from "@declarations/urunan_backend/urunan_backend.did";
 import { format } from 'date-fns';
+import { fromSplitBillStatus } from "src/model/mapper";
 
 export function Home() {
     return (
@@ -60,11 +61,18 @@ function History() {
                                 <div className="font-bold">{currency(exp.amount, { symbol: exp.currency, pattern: '! #' }).format()}</div>
                             </div>
                         </div>
-                        <div className="min-w-20">
-                            {Number(exp.total_debtor)} person
+                        <div className="min-w-20 flex flex-col">
+
+                            <div className="text-lg bg-lime-500 font-medium text-center border-2 border-black">
+                                {fromSplitBillStatus(exp.status)}
+                            </div>
+                            <div className="text-end font-bold">
+                                {Number(exp.total_debtor)} person
+                            </div>
                         </div>
                     </div>
                 ))}
+                {history.length === 0 && <div className="text-center">No data</div>}
             </div>
         </div>
     );

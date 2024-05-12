@@ -1,4 +1,4 @@
-import { ExpenseDetail, PaymentStatus, SplitBillDebtor, SplitBillMode, User } from "@declarations/urunan_backend/urunan_backend.did";
+import { ExpenseDetail, PaymentStatus, SplitBillDebtor, SplitBillMode, SplitBillStatus, User } from "@declarations/urunan_backend/urunan_backend.did";
 import { SplitDebtorCandidates } from "./views";
 
 export const toSplitBillMode = (mode: string): SplitBillMode => {
@@ -25,6 +25,10 @@ export const toPaymentStatus = (status: string | null | undefined): [] | [Paymen
         default:
             return [];
     }
+}
+
+export const fromSplitBillStatus = (mode: SplitBillStatus): string => {
+    return Object.keys(mode)[0];
 }
 
 export const toSplitBillDebtor = (debtors: SplitDebtorCandidates[]): SplitBillDebtor[] => {
