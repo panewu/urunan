@@ -25,6 +25,11 @@ type SplitBillDebtor = record {
   expense_id : nat;
   amount : float64;
 };
+type SplitBillExpense = record {
+  status : SplitBillStatus;
+  owner : text;
+  detail : ExpenseDetail;
+};
 type SplitBillMode = variant { Portion; Evenly; PerPurchase };
 type SplitBillStatus = variant { Repaid; Closed; Active };
 type User = record {
@@ -39,6 +44,7 @@ type UserRelIDs = record {
   owed_bills : vec nat;
 };
 service : {
+  all_expense : () -> (vec SplitBillExpense) query;
   connect_with_user : (text) -> (UserRelIDs);
   find_user : (text) -> (User) query;
   get_all_users : () -> (vec User) query;

@@ -5,8 +5,8 @@ use crate::core::types::{User, UserID, ID};
 use super::{
     service,
     types::{
-        ExpenseDetail, ExpenseOutline, ExpenseQueryFilter, SplitBillDebtor, SplitBillOwnership,
-        SplitBillStatus, UserRelIDs,
+        ExpenseDetail, ExpenseOutline, ExpenseQueryFilter, SplitBillDebtor, SplitBillExpense,
+        SplitBillOwnership, SplitBillStatus, UserRelIDs,
     },
 };
 
@@ -108,7 +108,7 @@ async fn new_expense(expense: ExpenseDetail, debtors: Vec<SplitBillDebtor>) -> I
 }
 
 #[query]
-async fn participated_expense(mut filter: Vec<ExpenseQueryFilter>) -> Vec<ExpenseOutline> {
+fn participated_expense(mut filter: Vec<ExpenseQueryFilter>) -> Vec<ExpenseOutline> {
     let session = caller();
     // if filter is empty, or no status filter found, default to all status filter
     let default_filter = vec![
@@ -122,4 +122,9 @@ async fn participated_expense(mut filter: Vec<ExpenseQueryFilter>) -> Vec<Expens
         filter.extend(default_filter);
     }
     service::get_expenses(session, filter, SplitBillOwnership::Participated)
+}
+
+#[query]
+fn all_expense() -> Vec<SplitBillExpense> {
+    service::get_all_expenses()
 }

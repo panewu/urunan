@@ -283,6 +283,10 @@ pub fn new_expense(
     id
 }
 
+pub fn get_all_expenses() -> Vec<SplitBillExpense> {
+    EXPENSES.with_borrow(|o| o.iter().map(|(k, v)| v).collect())
+}
+
 pub fn get_expenses(
     principal: Principal,
     filter: Vec<ExpenseQueryFilter>,

@@ -10,6 +10,7 @@ import { hashCode, hexColorFromNumber } from "src/utils";
 import { Avatar } from "../widgets/avatar";
 import { useActor } from "src/hooks/useActor";
 import { ExpenseOutline } from "@declarations/urunan_backend/urunan_backend.did";
+import { format } from 'date-fns';
 
 export function Home() {
     return (
@@ -31,7 +32,10 @@ function History() {
     const [history, setHistory] = useState<ExpenseOutline[]>([]);
     useEffect(() => {
         actor.participated_expense([])
-            .then((exp) => setHistory(exp))
+            .then((exp) => {
+                setHistory(exp);
+                console.log(exp);
+            })
             .catch(console.error);
     }, []);
     return (
@@ -50,14 +54,14 @@ function History() {
                 {history.map((exp, i) => (
                     <div key={exp.title + i} className="p-4 space-x-2 flex flex-row border-black border-2 rounded-md hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-gray-100 hover:bg-gray-200">
                         <div className="flex-grow">
-                            <div className="mb-2 font-bold">Madhang 12 12 12 1 12 12 12 12 12 22</div>
-                            <div className="text-sm mb-2">Apr 20, 2024 - 22.00</div>
+                            <div className="mb-2 font-bold">{exp.title}</div>
+                            <div className="text-sm mb-2">{format(new Date((Number(exp.timestamp))), 'E, dd MMM yyyy')}</div>
                             <div className="flex justify-between">
-                                <div className="font-bold">IDR 139.000</div>
+                                <div className="font-bold">{currency(exp.amount, { symbol: exp.currency, pattern: '! #' }).format()}</div>
                             </div>
                         </div>
                         <div className="min-w-20">
-                            24 person
+                            {Number(exp.total_debtor)} person
                         </div>
                     </div>
                 ))}
