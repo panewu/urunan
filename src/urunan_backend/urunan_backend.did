@@ -7,6 +7,15 @@ type ExpenseDetail = record {
   timestamp : nat64;
   amount : float64;
 };
+type ExpenseOutline = record {
+  tag : vec text;
+  status : SplitBillStatus;
+  title : text;
+  currency : text;
+  timestamp : nat64;
+  total_debtor : nat64;
+  amount : float64;
+};
 type ExpenseQueryFilter = variant { Status : SplitBillStatus };
 type Metrics = record { total_errors : nat64; total_api_requests : nat64 };
 type PaymentStatus = variant { Filled; Cancelled; Created; Settled };
@@ -41,7 +50,7 @@ service : {
   is_username_available : (text) -> (bool) query;
   new_expense : (ExpenseDetail, vec SplitBillDebtor) -> (nat);
   new_user : (User) -> ();
-  participated_expense : (vec ExpenseQueryFilter) -> () query;
+  participated_expense : (vec ExpenseQueryFilter) -> (vec ExpenseOutline) query;
   put_user_avatar : (text) -> ();
   put_user_full_name : (text) -> ();
 }

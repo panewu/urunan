@@ -13,7 +13,8 @@ use crate::core::{
 };
 
 use super::types::{
-    ExpenseDetail, ExpenseRelIDs, SplitBillDebtor, SplitBillExpense, SplitBillStatus, UserRelIDs,
+    ExpenseDetail, ExpenseOutline, ExpenseQueryFilter, ExpenseRelIDs, SplitBillDebtor,
+    SplitBillExpense, SplitBillOwnership, SplitBillStatus, UserRelIDs,
 };
 
 pub fn get_user_profile(username: UserID) -> Option<User> {
@@ -280,6 +281,62 @@ pub fn new_expense(
             .unwrap_or_else(|_| trap("Failed to set NEXT_EXPENSE_ID"))
     });
     id
+}
+
+pub fn get_expenses(
+    principal: Principal,
+    filter: Vec<ExpenseQueryFilter>,
+    split_ownership: SplitBillOwnership,
+) -> Vec<ExpenseOutline> {
+    // get user_id
+    let username = USERS
+        .with_borrow(|o| o.get(&principal))
+        .unwrap_or_else(|| trap("user not found"));
+    let user_rel = USER_RELS.with_borrow(|o| o.get(&username)).unwrap();
+
+    let expenses: Vec<(ID, SplitBillExpense)> = match split_ownership {
+        SplitBillOwnership::Owned => user_rel
+            .owned_expenses
+            .iter()
+            .map(|id| (*id, EXPENSES.with_borrow(|o| o.get(id).unwrap())))
+            .collect(),
+        SplitBillOwnership::Participated => user_rel
+            .owed_bills
+            .iter()
+            .map(|id| SPLIT_DEBTS.with_borrow(|o| o.get(id).unwrap()))
+            .map(|debtor| debtor.expense_id)
+            .map(|id| (id, EXPENSES.with_borrow(|o| o.get(&id).unwrap())))
+            .collect(),
+    };
+    expenses
+        .iter()
+        .filter(|(_, expense)| {
+            filter
+                .iter()
+                .any(|f| match f {
+                    ExpenseQueryFilter::Status(status) => expense.status == *status,
+                    _ => true,
+                })
+                .then(|| true)
+                .unwrap_or(false)
+        })
+        .map(|(id, expense)| {
+            let total_debtor = EXPENSE_RELS
+                .with_borrow(|o| o.get(id))
+                .unwrap()
+                .debtors
+                .len();
+            return ExpenseOutline {
+                amount: expense.detail.amount,
+                currency: expense.detail.currency.to_owned(),
+                title: expense.detail.title.to_owned(),
+                timestamp: expense.detail.timestamp,
+                tag: expense.detail.tag.as_slice().to_vec(),
+                total_debtor,
+                status: expense.status.to_owned(),
+            };
+        })
+        .collect()
 }
 
 #[cfg(test)]

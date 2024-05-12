@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, default};
 
 use candid::{CandidType, Decode, Encode};
 use ic_stable_structures::{storable::Bound, Storable};
@@ -28,6 +28,13 @@ pub enum PaymentStatus {
     Filled,
     Settled,
     Cancelled,
+}
+
+#[derive(Debug, CandidType, Deserialize, Default, Clone, PartialEq)]
+pub enum SplitBillOwnership {
+    Owned,
+    #[default]
+    Participated,
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
@@ -79,6 +86,17 @@ pub struct SplitBillDebtor {
     pub username: UserID,
     pub amount: f64,
     pub payment_status: Option<PaymentStatus>,
+}
+
+#[derive(Debug, CandidType, Deserialize, Default, Clone)]
+pub struct ExpenseOutline {
+    pub title: String,
+    pub amount: f64,
+    pub currency: String,
+    pub timestamp: u64,
+    pub tag: Vec<String>,
+    pub total_debtor: usize,
+    pub status: SplitBillStatus,
 }
 
 // Structs need to impl Storable to be used in Stable Memory
