@@ -50,7 +50,7 @@ export function AvatarCheckmark({ checked: checkedDefault, onChecked, ...props }
     const [checked, setChecked] = useState<boolean>(checkedDefault || false);
 
     return (
-        <div className="relative w-16" onClick={() => {
+        <div className="relative w-16 mx-7" onClick={() => {
             onChecked && onChecked(!checked);
             setChecked(!checked);
         }}>

@@ -263,57 +263,61 @@ function SplitDebtorList() {
                     )
                 }
             </div>
-            <div className="flex flex-col">
-                {
-                    debtorCandidates.map((debtor, index) => (
-                        <div key={debtor.username + watchedMode} className="flex flex-row items-baseline space-x-2 py-1">
-                            <Avatar
-                                avatarUrl={debtor.avatar}
-                                username={debtor.username}
-                                labelName={debtor.username}
-                            />
-                            {
-                                watchedMode === 'evenly' ?
-                                    (
-                                        <div className="relative w-full">
-                                            <CurrencyInput
-                                                className=
-                                                "border-black border-2 rounded-full py-2.5 pr-2.5 pl-16 w-full focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-                                                placeholder="Amount"
-                                                decimalScale={2}
-                                                decimalSeparator="."
-                                                groupSeparator=","
-                                                value={debtor.amount}
-                                                disabled
-                                            />
-                                            <div className="absolute inset-y-2.5 left-2.5 py-1 px-2 rounded-full flex items-center bg-emerald-300 text-sm font-semibold border-black border-2">
-                                                {calculatePercentage(debtor.amount)}%
+            <div className="flex flex-col space-y-4">
+
+                <div className="flex flex-col">
+                    {
+                        debtorCandidates.map((debtor, index) => (
+                            <div key={debtor.username + watchedMode} className="flex flex-row items-baseline space-x-2 px-3 py-1">
+                                <Avatar
+                                    avatarUrl={debtor.avatar}
+                                    username={debtor.username}
+                                    labelName={debtor.username}
+                                />
+                                {
+                                    watchedMode === 'evenly' ?
+                                        (
+                                            <div className="relative w-full">
+                                                <CurrencyInput
+                                                    className=
+                                                    "border-black ml-2 border-2 rounded-full py-2.5 pr-2.5 pl-16 w-full focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                                                    placeholder="Amount"
+                                                    decimalScale={2}
+                                                    decimalSeparator="."
+                                                    groupSeparator=","
+                                                    value={debtor.amount}
+                                                    disabled
+
+                                                />
+                                                <div className="absolute inset-y-2.5 left-2.5 py-1 px-2 rounded-full flex items-center bg-emerald-300 text-sm font-semibold border-black border-2">
+                                                    {calculatePercentage(debtor.amount)}%
+                                                </div>
                                             </div>
-                                        </div>
-                                    )
-                                    :
-                                    (
-                                        <div className="relative w-full">
-                                            <CurrencyInput
-                                                className=
-                                                "border-black border-2 rounded-full p-2.5 w-full focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-                                                placeholder="Amount"
-                                                decimalScale={2}
-                                                decimalSeparator="."
-                                                groupSeparator=","
-                                                defaultValue={0}
-                                                onValueChange={(v, n, values) => {
-                                                    console.log('value changed', values?.value);
-                                                }}
-                                            />
-                                        </div>
-                                    )
-                            }
+                                        )
+                                        :
+                                        (
+                                            <div className="relative w-full">
+                                                <CurrencyInput
+                                                    className=
+                                                    "border-black border-2 rounded-full p-2.5 w-full focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-emerald-100 active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                                                    placeholder="Amount"
+                                                    decimalScale={2}
+                                                    decimalSeparator="."
+                                                    groupSeparator=","
+                                                    defaultValue={0}
+                                                    onValueChange={(v, n, values) => {
+                                                        console.log('value changed', values?.value);
+                                                    }}
+                                                />
+                                            </div>
+                                        )
+                                }
 
 
-                        </div>
-                    ))
-                }
+                            </div>
+                        ))
+                    }
+                </div>
             </div>
         </div>
     );
