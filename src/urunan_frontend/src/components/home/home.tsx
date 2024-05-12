@@ -257,14 +257,17 @@ function DetailActionCard() {
 };
 
 function Header() {
+    const { user } = useUser();
     return (
         <header className="h-70 flex flex-row justify-between items-center bg-lime-500 border-black border-b-2 p-2.5">
             <h1 className="text-lime-900 text-5xl font-black">URUNAN</h1>
-            <img
-                src="https://thenational-the-national-prod.cdn.arcpublishing.com/resizer/v2/JY63BH7DXZC33K4TARQXIN3X34.jpg?smart=true&auth=0c17d44312353c4c8dd807c19ced8c007c671a84d05c136ea71fa6b36b5e5737&width=100&height=100"
-                className="rounded-full w-16 border-2 border-black hover:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-                alt="Profile"
-            />
+            {
+                user && <Avatar
+                    avatarUrl={user.avatar}
+                    username={user.username}
+                    showName={false} />
+            }
+
         </header>
     );
 };
