@@ -72,7 +72,7 @@ function History() {
                         </div>
                     </div>
                 ))}
-                {history.length === 0 && <div className="text-center">No data</div>}
+                {history.length === 0 && <div className="text-center text-lg font-bold m-4">No data</div>}
             </div>
         </div>
     );
