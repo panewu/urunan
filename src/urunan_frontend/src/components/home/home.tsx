@@ -8,6 +8,8 @@ import { useUser } from "src/hooks/useUser";
 import { hash } from "crypto";
 import { hashCode, hexColorFromNumber } from "src/utils";
 import { Avatar } from "../widgets/avatar";
+import { useActor } from "src/hooks/useActor";
+import { ExpenseOutline } from "@declarations/urunan_backend/urunan_backend.did";
 
 export function Home() {
     return (
@@ -25,7 +27,13 @@ export function Home() {
     );
 }
 function History() {
-    const history = [];
+    const { actor } = useActor();
+    const [history, setHistory] = useState<ExpenseOutline[]>([]);
+    useEffect(() => {
+        actor.participated_expense([])
+            .then((exp) => setHistory(exp))
+            .catch(console.error);
+    }, []);
     return (
         <div className="mx-auto p-4">
             <div className="flex flex-row my-2 space-x-2">
@@ -39,8 +47,8 @@ function History() {
                 </button>
             </div>
             <div className="space-y-4">
-                {Array.from({ length: 22 }, (_, index) => (
-                    <div key={index} className="p-4 space-x-2 flex flex-row border-black border-2 rounded-md hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-gray-100 hover:bg-gray-200">
+                {history.map((exp, i) => (
+                    <div key={exp.title + i} className="p-4 space-x-2 flex flex-row border-black border-2 rounded-md hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] bg-gray-100 hover:bg-gray-200">
                         <div className="flex-grow">
                             <div className="mb-2 font-bold">Madhang 12 12 12 1 12 12 12 12 12 22</div>
                             <div className="text-sm mb-2">Apr 20, 2024 - 22.00</div>
